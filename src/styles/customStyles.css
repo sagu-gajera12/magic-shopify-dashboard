@@ -1,0 +1,17 @@
+/* src/styles/customStyles.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+  }
+  .card-container {
+    margin: 20px auto;
+    padding: 10px;
+  }
+  .modal-content {
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+  }
+  
