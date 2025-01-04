@@ -38,7 +38,8 @@ const Dashboard = () => {
     const fetchOrders = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('http://localhost:8080/getUnshippedOrder');
+            const response = await axios.get('http://localhost:8080/walmart/unshipped/orders');
+            console.log("unshipped", response.data)
             setOrders(response.data || []);
         } catch (error) {
             console.error('Error fetching orders:', error);
@@ -134,9 +135,9 @@ const Dashboard = () => {
                                 <Typography>Address: {order.shippingInfo.postalAddress.address1}</Typography>
                                 <Typography>Email: {order.customerEmailId}</Typography>
                                 <Typography>Phone: {order.shippingInfo.phone}</Typography>
-                                <Typography>Product Name: {order.orderLines.orderLine[0].item.productName}</Typography>
-                                <Typography>Quantity: {order.orderLines.orderLine[0].orderLineQuantity.amount}</Typography>
-                                <Typography>Price: ${order.orderLines.orderLine[0].charges.charge[0].chargeAmount.amount}</Typography>
+                                <Typography>Product Name: {order.orderInfo.productName}</Typography>
+                                <Typography>Quantity: {order.orderInfo.qtyAmount}</Typography>
+                                <Typography>Price: ${order.orderInfo.chargeAmount}</Typography>
 
                                 {order.productNameForShiprocket != null &&
                                     <Typography>ProductName for shipment: {order.productNameForShiprocket}</Typography>}
