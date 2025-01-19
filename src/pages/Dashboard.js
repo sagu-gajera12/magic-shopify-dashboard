@@ -1,477 +1,96 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import {
-    Button,
-    Modal,
-    TextField,
-    Card,
-    CardContent,
-    Typography,
-    Grid,
-    CircularProgress,
-    Box,
-    Checkbox,
-    FormControlLabel,
-    Select,
-    MenuItem,
-    InputLabel,
-    FormControl,
-} from '@mui/material';
-import '../styles/customStyles.css';
-import { getDummyOrders } from '../data/dummy';
-import AddressFields from './AddressFields';
-import EditableField from './EditableFields';
-import AddressDisplay from '../components/AddressDisplay';
+import React, { useEffect } from 'react';
+import { Box, Typography, Grid, CircularProgress } from '@mui/material';
+import OrderCard from '../components/OrderCard';
+import OrderModal from '../components/OrderModal';
+import { fetchOrders } from '../services/api';
+import useOrders from '../hooks/useOrders';
 
 const Dashboard = () => {
-    const [orders, setOrders] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [selectedOrder, setSelectedOrder] = useState(null);
-    const [orderInfoList, setOrderInfoList] = useState([]);
-    const [modalType, setModalType] = useState(''); // 'view', 'edit', 'shipment'
-    const [editableData] = useState({
+    const { orders, setOrders, loading, selectedOrder, setSelectedOrder, modalType, setModalType } = useOrders();
+    const editableData = {
         deadWeight: '',
         length: '',
         height: '',
         width: '',
         billingAddress: {
-            name: '', address1: '', address2: '', city: '', state: '', postalCode: '', country: ''
-        }
-    });
-
-    useEffect(() => {
-        fetchOrders();
-    }, []);
-
-    const fetchOrders = async () => {
-        setLoading(true);
-        try {
-            const response = await axios.get('http://localhost:8080/walmart/unshipped/orders');
-            setOrders(response.data || []);
-        } catch (error) {
-            console.error('Error fetching orders:', error);
-            setOrders(getDummyOrders());
-        } finally {
-            setLoading(false);
+            name: '',
+            address1: '',
+            address2: '',
+            city: '',
+            state: '',
+            postalCode: '',
+            country: ''
         }
     };
+    useEffect(() => {
+        fetchOrders().then(setOrders).catch(console.error);
+    }, []);
 
     const handleModalOpen = (order, type) => {
-        console.log(order)
-        setSelectedOrder({ ...order, editableData: { ...editableData, ...order.editableData } });
-        setOrderInfoList(order.orderInfo)
+        setSelectedOrder({
+            ...order,
+            orderEditableFields: {
+                ...editableData, // Initialize with default `editableData`
+                ...order.orderEditableFields, // Merge with existing data
+            },
+            orderInfo: order.orderInfo.map(orderInfo => ({
+                ...orderInfo,
+                productEditableFields: {
+                    ...orderInfo.productEditableFields,
+                },
+            })),
+        });
+
         setModalType(type);
     };
 
+
     const handleModalClose = () => {
-        setOrders(prevOrders =>
-            prevOrders.map(order =>
-                order.customerOrderId === selectedOrder.customerOrderId
-                    ? { ...order, ...selectedOrder }
-                    : order
-            )
-        );
+        if (selectedOrder && selectedOrder.customerOrderId) {
+            setOrders((prevOrders) =>
+                prevOrders.map((order) =>
+                    order.customerOrderId === selectedOrder.customerOrderId
+                        ? { ...order, ...selectedOrder }
+                        : order
+                )
+            );
+        }
         setSelectedOrder(null);
-        setOrderInfoList([])
         setModalType('');
     };
 
-    const handleShipmentChange = (order, singleOrder, field, value, flag) => {
-        console.log(flag, value)
-        console.log("value", value)
-
-        if (flag === "editableSingleOrderInfo") {
-            // Update `orderInfoList` immutably
-            const updatedOrderInfoList = orderInfoList.map(prevOrderInfo =>
-                prevOrderInfo.lineNumber === singleOrder.lineNumber
-                    ? {
-                        ...prevOrderInfo,
-                        editableOrderInfoData: {
-                            ...prevOrderInfo.editableOrderInfoData,
-                            [field]: value,
-                        },
-                    }
-                    : prevOrderInfo
-            );
-
-            // Update `orderInfoList` state
-            setOrderInfoList(updatedOrderInfoList);
-
-            // Use the updated `orderInfoList` to update `selectedOrder`
-            setSelectedOrder(prevSelectedOrder => ({
-                ...prevSelectedOrder,
-                orderInfo: updatedOrderInfoList,
-            }));
-            console.log("Updated selectedOrder:", selectedOrder);
-        } else {
-            setSelectedOrder({ ...order, editableData: { ...order.editableData, [field]: value } });
-        }
-        console.log("order", selectedOrder.orderInfo[0].editableOrderInfoData.shiprocketQty)
-    };
-
-
-    const handleEditBillingAddress = (field, value) => {
-
-        setSelectedOrder(prev => ({
-            ...prev,
-            editableData: {
-                ...prev.editableData,
-                billingAddress: {
-                    ...prev.editableData.billingAddress,
-                    [field]: value,
-                }
-            }
-        }));
-
-    };
-
-    const handleAddressCopy = (checked) => {
-        if (checked) {
-            setSelectedOrder(prev => ({
-                ...prev,
-                editableData: {
-                    ...prev.editableData,
-                    billingAddress: { ...prev.shippingInfo.postalAddress }
-                }
-            }));
-        } else {
-            setSelectedOrder(prev => ({
-                ...prev,
-                editableData: {
-                    ...prev.editableData,
-                    billingAddress: {
-                        name: '',
-                        address1: '',
-                        address2: '',
-                        city: '',
-                        state: '',
-                        postalCode: '',
-                        country: '',
-                    },
-                }
-            }));
-        }
-    };
-
-    const handleSave = () => {
-
-        setOrders(prevOrders =>
-            prevOrders.map(order =>
-                order.customerOrderId === selectedOrder.customerOrderId
-                    ? { ...order, ...selectedOrder }
-                    : order
-            )
-        );
-        handleModalClose();
-    };
-
-
-    const handleSubmitShipment = async () => {
-        const isOrderInfoValid = selectedOrder.orderInfo.every(order =>
-            Object.values(order.editableOrderInfoData).every(value => value !== null && value !== '')
-        );
-
-        if (!isOrderInfoValid) {
-            alert('Please fill all fields in the order information before submitting.');
-            return;
-        }
-
-        if (Object.values(selectedOrder.editableData).some(value => !value)) {
-            alert('Please fill all fields before submitting.');
-            return;
-        }
-
-
-        try {
-            console.log("createOrder", { ...selectedOrder })
-            const response = await axios.post('http://localhost:8080/shiprocket/createOrder', {
-                ...selectedOrder
-            });
-            console.log("order :", response.data)
-            alert('Order submitted successfully!');
-            handleModalClose();
-        } catch (error) {
-            console.error('Error submitting order:', error);
-            alert('Failed to submit the order.');
-        }
-    };
 
     if (loading) return <CircularProgress />;
-
     return (
         <Box p={3}>
             <Typography variant="h4" gutterBottom>
                 Unshipped Orders
             </Typography>
             <Grid container spacing={3}>
-                {orders.map(order => (
-                    <Grid
-                        style={{ margin: '10px 0px' }}
-                        item
-                        xs={12}
-                        md={6}
-                        lg={4}
-                        key={order.customerOrderId}
-                    >
-                        <Card
-                            style={{
-                                height: '100%',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                padding: 16,
-                            }}
-                        >
-                            <CardContent>
-                                <Typography variant="h6">Order ID: {order.customerOrderId}</Typography>
-                                <Typography>Customer Name: {order.shippingInfo.postalAddress.name}</Typography>
-                                <Typography>Address: {order.shippingInfo.postalAddress.address1}</Typography>
-                                <Typography>Email: {order.customerEmailId}</Typography>
-                                <Typography>Phone: {order.shippingInfo.phone}</Typography>
-                                {
-                                    order.orderInfo.map(orderInfo => (
-                                        <>
-                                            <CardContent>
-                                                <Typography>Product Name: {orderInfo.productName}</Typography>
-                                                <Typography>Quantity: {orderInfo.qtyAmount}</Typography>
-                                                <Typography>Price: ${orderInfo.chargeAmount}</Typography>
-                                                <EditableField data={orderInfo.editableOrderInfoData} flag={"editableOrderInfoData"}></EditableField>
-                                            </CardContent>
-                                        </>
-                                    )
-                                    )
+                {orders.map((order) => (
 
-                                }
-
-                                <EditableField data={order.editableData} flag={"editableData"}></EditableField>
-
-                            </CardContent>
-                            <Box mt="auto" display="flex" gap={2}>
-                                <Button
-                                    variant="contained"
-                                    onClick={() => handleModalOpen(order, 'view')}
-                                >
-                                    View
-                                </Button>
-                                <Button
-                                    variant="outlined"
-                                    onClick={() => handleModalOpen(order, 'edit')}
-                                >
-                                    Edit
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    color="secondary"
-                                    onClick={() => handleModalOpen(order, 'shipment')}
-                                >
-                                    Start Shipment
-                                </Button>
-                            </Box>
-                        </Card>
+                    <Grid item xs={12} md={6} lg={4} key={order.customerOrderId}>
+                        <OrderCard
+                            order={order}
+                            onView={(order) => handleModalOpen(order, 'view')}
+                            onEdit={(order) => handleModalOpen(order, 'edit')}
+                            onShipment={(order) => handleModalOpen(order, 'shipment')}
+                            onOpneModel={handleModalOpen}
+                            setSelectedOrder={selectedOrder}
+                        />
                     </Grid>
                 ))}
             </Grid>
-
-            <Modal
-                open={!!modalType}
-                onClose={handleModalClose}
-                style={{ overflowY: 'auto' }}
-            >
-                <Box
-                    sx={{
-                        p: 4,
-                        bgcolor: 'background.paper',
-                        m: 'auto',
-                        maxWidth: 500,
-                        mt: 10,
-                        maxHeight: '80vh',
-                        overflowY: 'auto',
+            {modalType && (
+                <OrderModal
+                    modalType={modalType}
+                    order={selectedOrder}
+                    onClose={handleModalClose}
+                    onSave={(updatedOrder) => {
+                        setSelectedOrder(updatedOrder)
                     }}
-                >
-                    {modalType === 'view' && selectedOrder && (
-                        <Box>
-                            <Typography variant="h5" gutterBottom>
-                                Order Details
-                            </Typography>
-                            <Typography><b>Order ID:</b> {selectedOrder.customerOrderId}</Typography>
-                            <Typography><b>Customer Email:</b> {selectedOrder.customerEmailId}</Typography>
-
-                            <AddressDisplay address={selectedOrder.shippingInfo.postalAddress} addressType="Shipping Address"></AddressDisplay>
-
-                            {selectedOrder.editableData.billingAddress && (
-                                <>
-                                    <AddressDisplay address={selectedOrder.editableData.billingAddress} addressType="Billing Address"></AddressDisplay>
-                                </>
-                            )}
-                        </Box>
-                    )}
-
-                    {modalType === 'edit' && (
-                        <>
-                            <Typography variant="h6">Edit Order</Typography>
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        onChange={(e) => handleAddressCopy(e.target.checked)}
-                                    />
-                                }
-                                label="Same as Shipping Address"
-                            />
-                            <AddressFields
-                                prefix="billingAddress"
-                                address={selectedOrder.editableData.billingAddress || {}}
-                                handleChange={handleEditBillingAddress}
-                            />
-                            {
-                                selectedOrder.orderInfo.map(order => {
-                                    return Object.keys(order.editableOrderInfoData).map(field => {
-
-
-                                        if (field === "hsn") {
-                                            // Render Select component for 'hsn'
-                                            return <>
-                                                <FormControl fullWidth margin="normal">
-                                                    <InputLabel id="hsn-label">HSN</InputLabel>
-                                                    <Select
-                                                        labelId="hsn-label"
-                                                        id="hsn-select"
-                                                        value={order.editableOrderInfoData[field] || ''}
-                                                        onChange={(e) => handleShipmentChange(selectedOrder, order, field, e.target.value, "editableSingleOrderInfo")}
-                                                        label="HSN"
-                                                    >
-                                                        <MenuItem value={"33049910"}>33049910: Cosmetic item</MenuItem>
-                                                        <MenuItem value={"12345678"}>12345678: Sample item</MenuItem>
-                                                    </Select>
-                                                </FormControl>
-                                            </>
-                                        }
-
-                                        return (
-                                            <TextField
-                                                key={field}
-                                                label={field}
-                                                value={order.editableOrderInfoData[field] || ''}
-                                                fullWidth
-                                                margin="normal"
-                                                onChange={(e) => handleShipmentChange(selectedOrder, order, field, e.target.value, "editableSingleOrderInfo")}
-                                            />
-                                        );
-                                    })
-                                })
-                            }
-
-                            {Object.keys(selectedOrder.editableData).map(field => {
-                                if (field === 'billingAddress') {
-                                    return "";
-                                }
-                                return (
-                                    <TextField
-                                        key={field}
-                                        label={field}
-                                        value={selectedOrder.editableData[field] || ''}
-                                        fullWidth
-                                        margin="normal"
-                                        onChange={(e) => handleShipmentChange(selectedOrder, selectedOrder, field, e.target.value, "editableData")}
-                                    />
-                                );
-                            })}
-
-                            <Button variant="contained" onClick={handleSave}>
-                                Save
-                            </Button>
-                        </>
-                    )}
-
-                    {modalType === 'shipment' && (
-                        <>
-                            <Typography variant="h6">Start Shipment</Typography>
-
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        onChange={(e) => handleAddressCopy(e.target.checked)}
-                                    />
-                                }
-                                label="Same as Shipping Address"
-                            />
-                            <AddressFields
-                                prefix="billingAddress"
-                                address={selectedOrder.editableData.billingAddress || {}}
-                                handleChange={handleEditBillingAddress}
-                            />
-
-                            {
-                                selectedOrder.orderInfo.map(order => {
-                                    return Object.keys(order.editableOrderInfoData).map(field => {
-
-
-                                        if (field === "hsn") {
-                                            // Render Select component for 'hsn'
-                                            return <>
-                                                <FormControl fullWidth margin="normal">
-                                                    <InputLabel id="hsn-label">HSN</InputLabel>
-                                                    <Select
-                                                        labelId="hsn-label"
-                                                        id="hsn-select"
-                                                        value={order.editableOrderInfoData[field] || ''}
-                                                        onChange={(e) => handleShipmentChange(selectedOrder, order, field, e.target.value, "editableSingleOrderInfo")}
-                                                        label="HSN"
-                                                    >
-                                                        <MenuItem value={"33049910"}>33049910: Cosmetic item</MenuItem>
-                                                        <MenuItem value={"12345678"}>12345678: Sample item</MenuItem>
-                                                    </Select>
-                                                </FormControl>
-                                            </>
-                                        }
-
-                                        return (
-                                            <TextField
-                                                key={field}
-                                                label={field}
-                                                value={order.editableOrderInfoData[field] || ''}
-                                                fullWidth
-                                                margin="normal"
-                                                onChange={(e) => handleShipmentChange(selectedOrder, order, field, e.target.value, "editableSingleOrderInfo")}
-                                            />
-                                        );
-                                    })
-                                })
-                            }
-
-                            {Object.keys(selectedOrder.editableData).map(field => {
-                                if (field === 'billingAddress') {
-                                    return "";
-                                }
-                                return (
-                                    <TextField
-                                        key={field}
-                                        label={field}
-                                        value={selectedOrder.editableData[field] || ''}
-                                        fullWidth
-                                        margin="normal"
-                                        onChange={(e) => handleShipmentChange(selectedOrder, selectedOrder, field, e.target.value, "editableData")}
-                                    />
-                                );
-                            })}
-
-
-                            <Button
-                                style={{ marginRight: '10px' }}
-                                variant="contained"
-                                onClick={handleSubmitShipment}
-                            >
-                                Submit
-                            </Button>
-                            <Button
-                                style={{ marginLeft: '10px' }}
-                                variant="outlined"
-                                onClick={handleModalClose}
-                            >
-                                Save
-                            </Button>
-                        </>
-                    )}
-                </Box>
-            </Modal>
+                />
+            )}
         </Box>
     );
 };

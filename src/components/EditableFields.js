@@ -6,8 +6,7 @@ const EditableField = ({ data, flag }) => {
     if (!data || Object.keys(data).length === 0) {
         return <></>;
     }
-    console.log("data", data, flag)
-
+    
     if (flag === "editableOrderInfoData") {
         return <>
             {/* {data.productNameForShiprocket && (
