@@ -6,7 +6,7 @@ import { fetchOrders } from '../services/api';
 import useOrders from '../hooks/useOrders';
 
 const Dashboard = () => {
-    const { orders, setOrders, loading, selectedOrder, setSelectedOrder, modalType, setModalType } = useOrders();
+    const { orders, setOrders, loading, setLoading, selectedOrder, setSelectedOrder, modalType, setModalType } = useOrders();
     const editableData = {
         deadWeight: '',
         length: '',
@@ -23,10 +23,24 @@ const Dashboard = () => {
         }
     };
     useEffect(() => {
-        fetchOrders().then(setOrders).catch(console.error);
+        const loadOrders = async () => {
+            setLoading(true);
+            try {
+                const orders = await fetchOrders();
+                setOrders(orders);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+    
+        loadOrders();
     }, []);
 
     const handleModalOpen = (order, type) => {
+        console.log("set order", orders)
+
         setSelectedOrder({
             ...order,
             orderEditableFields: {

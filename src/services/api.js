@@ -10,7 +10,7 @@ export const fetchOrders = async () => {
     }
 };
 
-export const submitShipment = async (order) => {
+export const submitShipment = (order) => {
     console.log(order)
     const isOrderInfoValid = order.orderInfo.every(product =>
         Object.values(product.productEditableFields).every(value => value !== null && value !== '')
@@ -28,7 +28,8 @@ export const submitShipment = async (order) => {
 
 
     try {
-        const response = await axios.post('http://localhost:8080/shiprocket/createOrder', order);
+        const response = axios.post('http://localhost:8080/shiprocket/createOrder', order);
+        alert('Order submitted successfully!');
         return order;
     } catch (error) {
         console.error('Error submitting shipment:', error);

@@ -33,9 +33,9 @@ const OrderModal = ({ modalType = '', order = {}, onClose, onSave }) => {
                 ...order,
                 orderEditableFields: {
                     ...order.orderEditableFields,
-                    billingAddress: { },
+                    billingAddress: {},
                 },
-            }); 
+            });
         }
     };
 
@@ -121,7 +121,6 @@ const OrderModal = ({ modalType = '', order = {}, onClose, onSave }) => {
                                                 label="HSN"
                                             >
                                                 <MenuItem value={"33049910"}>33049910: Cosmetic item</MenuItem>
-                                                <MenuItem value={"12345678"}>12345678: Sample item</MenuItem>
                                             </Select>
                                         </FormControl>
                                     </>
@@ -194,7 +193,6 @@ const OrderModal = ({ modalType = '', order = {}, onClose, onSave }) => {
                                                 label="HSN"
                                             >
                                                 <MenuItem value={"33049910"}>33049910: Cosmetic item</MenuItem>
-                                                <MenuItem value={"12345678"}>12345678: Sample item</MenuItem>
                                             </Select>
                                         </FormControl>
                                     </>
@@ -233,7 +231,10 @@ const OrderModal = ({ modalType = '', order = {}, onClose, onSave }) => {
                     <Button
                         style={{ marginRight: '10px' }}
                         variant="contained"
-                        onClick={() => submitShipment(order)}
+                        onClick={() => { 
+                            submitShipment(order);
+                            onClose();
+                        }}
                     >
                         Submit
                     </Button>

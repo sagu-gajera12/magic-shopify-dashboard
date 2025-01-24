@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   CircularProgress,
+  Modal,
   Paper,
   Table,
   TableBody,
@@ -12,6 +13,7 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  TextField,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/system";
@@ -25,14 +27,14 @@ const StickyHeaderTableCell = styled(TableCell)({
   fontWeight: "bold",
 });
 
-
-
 const ProductPortfolio = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -58,27 +60,46 @@ const ProductPortfolio = () => {
     }
   };
 
-  const handleEditableColumnUpdate = async (sku, columnId, newValue) => {
-    try {
-      const payload = { sku, [columnId]: newValue };
-      await axios.post("http://localhost:8080/walmart/updateProduct", payload);
-      await fetchProducts();
-    } catch (error) {
-      console.error(`Failed to update ${columnId} for SKU ${sku}:`, error);
-    }
+  const handleEditModalOpen = (product) => {
+    setSelectedProduct({ ...product });
+    setModalOpen(true);
   };
-  
-  const handleEditableInputBlur = (event, selectedProduct, columnId, oldValue) => {
-    const newValue = event.target.value;
-    if (newValue !== '' &&newValue.trim() !== "" && newValue !== oldValue) {
-      handleEditableColumnUpdate(selectedProduct.sku, columnId, newValue);
-      setProducts(prevProduct =>
-        prevProduct.map(product =>
-          product.sku === selectedProduct.sku
-                ? { ...selectedProduct,[columnId]: newValue }
-                : product
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setSelectedProduct(null);
+  };
+
+  const handleEditableFieldChange = (field, value) => {
+    setSelectedProduct((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleUpdateProduct = async () => {
+    try {
+      const editableProductField = {
+        sku: selectedProduct.sku,
+        priceInInr: selectedProduct.priceInInr || "",
+        deadWeight: selectedProduct.deadWeight || "",
+        height: selectedProduct.height || "",
+        length: selectedProduct.length || "",
+        width: selectedProduct.width || "",
+      }
+
+      console.log("editableProductField", editableProductField)
+
+      const response = await axios.post("http://localhost:8080/walmart/updateProduct", editableProductField);
+      const result = response.data;
+      setProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          product.sku === result.sku ? { ...result } : product
         )
-    );
+      );
+      handleModalClose();
+    } catch (error) {
+      console.error("Failed to update product:", error);
     }
   };
 
@@ -120,64 +141,61 @@ const ProductPortfolio = () => {
         </Box>
       ) : (
         <Paper sx={{ width: "100%", overflow: "hidden" }}>
-          <TableContainer
-            component={Paper}
-            sx={{ maxHeight: "60vh", overflow: "auto", overflowX: "scroll" }} // Ensure horizontal scroll
-          >
-            <Box sx={{ width: "max-content" }}> {/* Ensures table content determines width */}
-              <Table stickyHeader>
-
-                <TableHead>
-                  <TableRow>
-                    <StickyHeaderTableCell>SKU</StickyHeaderTableCell>
-                    {/* <StickyHeaderTableCell>Condition</StickyHeaderTableCell> */}
-                    <StickyHeaderTableCell>Availability</StickyHeaderTableCell>
-                    {/* <StickyHeaderTableCell>WPID</StickyHeaderTableCell> */}
-                    <StickyHeaderTableCell>Product Name</StickyHeaderTableCell>
-                    <StickyHeaderTableCell>Type</StickyHeaderTableCell>
-                    <StickyHeaderTableCell>Price</StickyHeaderTableCell>
-                    <StickyHeaderTableCell>Price in INR</StickyHeaderTableCell>
-                    {/* <StickyHeaderTableCell>Published Status</StickyHeaderTableCell>
-                    <StickyHeaderTableCell>Lifecycle Status</StickyHeaderTableCell> */}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {products
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((product) => (
-                      <TableRow key={product.sku}>
-                        <TableCell>{product.sku}</TableCell>
-                        {/* <TableCell>{product.walmartCondition}</TableCell> */}
-                        <TableCell>{product.availability}</TableCell>
-                        {/* <TableCell>{product.wpid}</TableCell> */}
-                        <TableCell>{product.productName}</TableCell>
-                        <TableCell>{product.productType}</TableCell>
-                        <TableCell>${product.price.toFixed(2)}</TableCell>
-                        <TableCell>
-                          <input
-                            type="text"
-                            defaultValue=""
-                            placeholder="Enter Price"
-                            onBlur={(e) =>
-                              handleEditableInputBlur(e, product, "priceInINR", product.priceInINR)
-                            }
-                            style={{
-                              width: "100%",
-                              padding: "4px",
-                              fontSize: "14px",
-                              border: "1px solid #ccc",
-                              borderRadius: "4px",
-                            }}
-                          />
-                        </TableCell>
-                        {/* <TableCell>{product.publishedStatus}</TableCell>
-                        <TableCell>{product.lifecycleStatus}</TableCell> */}
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
-            </Box>
+          <TableContainer component={Paper} sx={{ maxHeight: "60vh", width: "100%", overflowX: "auto" }}>
+            <Table stickyHeader>
+              <TableHead>
+                <TableRow>
+                  <StickyHeaderTableCell
+                    sx={{ textAlign: "left", minWidth: { xs: 100, sm: 150, md: 200 } }}
+                  >
+                    SKU
+                  </StickyHeaderTableCell>
+                  <StickyHeaderTableCell
+                    sx={{ textAlign: "left", minWidth: { xs: 150, sm: 200, md: 300 } }}
+                  >
+                    Product Name
+                  </StickyHeaderTableCell>
+                  <StickyHeaderTableCell
+                    sx={{ textAlign: "left", minWidth: { xs: 100, sm: 150, md: 200 } }}
+                  >
+                    Price
+                  </StickyHeaderTableCell>
+                  <StickyHeaderTableCell
+                    sx={{ textAlign: "left", minWidth: { xs: 150, sm: 200, md: 250 } }}
+                  >
+                    Actions
+                  </StickyHeaderTableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody style={{ textAlign: 'center' }}>
+                {products
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((product) => (
+                    <TableRow key={product.sku}>
+                      <TableCell sx={{ wordWrap: "break-word", whiteSpace: "normal" }}>
+                        {product.sku}
+                      </TableCell>
+                      <TableCell sx={{ wordWrap: "break-word", whiteSpace: "normal" }}>
+                        {product.productName}
+                      </TableCell>
+                      <TableCell>
+                        ${product.price.toFixed(2)}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outlined"
+                          color="primary"
+                          onClick={() => handleEditModalOpen(product)}
+                        >
+                          Edit
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
           </TableContainer>
+
           <TablePagination
             rowsPerPageOptions={[10, 25, 100]}
             component="div"
@@ -189,6 +207,70 @@ const ProductPortfolio = () => {
           />
         </Paper>
       )}
+
+      <Modal open={modalOpen} onClose={handleModalClose}>
+        <Box
+          sx={{
+            width: 400,
+            bgcolor: "background.paper",
+            p: 4,
+            borderRadius: 2,
+            mx: "auto",
+            mt: 10,
+          }}
+        >
+          <Typography variant="h6" mb={2} textAlign="center">
+            Edit Product : {selectedProduct?.productName}
+          </Typography>
+          {selectedProduct && (
+            <>
+              <TextField
+                fullWidth
+                label="Price (INR)"
+                value={selectedProduct.priceInInr || ""}
+                onChange={(e) => handleEditableFieldChange("priceInInr", e.target.value)}
+                margin="normal"
+              />
+              <TextField
+                fullWidth
+                label="Dead Weight (gm)"
+                value={selectedProduct.deadWeight || ""}
+                onChange={(e) => handleEditableFieldChange("deadWeight", e.target.value)}
+                margin="normal"
+              />
+              <TextField
+                fullWidth
+                label="Height (cm)"
+                value={selectedProduct.height || ""}
+                onChange={(e) => handleEditableFieldChange("height", e.target.value)}
+                margin="normal"
+              />
+              <TextField
+                fullWidth
+                label="Length (cm)"
+                value={selectedProduct.length || ""}
+                onChange={(e) => handleEditableFieldChange("length", e.target.value)}
+                margin="normal"
+              />
+              <TextField
+                fullWidth
+                label="Width (cm)"
+                value={selectedProduct.width || ""}
+                onChange={(e) => handleEditableFieldChange("width", e.target.value)}
+                margin="normal"
+              />
+              <Box display="flex" justifyContent="space-between" mt={2}>
+                <Button variant="contained" onClick={handleUpdateProduct}>
+                  Submit
+                </Button>
+                <Button variant="outlined" onClick={handleModalClose}>
+                  Cancel
+                </Button>
+              </Box>
+            </>
+          )}
+        </Box>
+      </Modal>
     </Box>
   );
 };
