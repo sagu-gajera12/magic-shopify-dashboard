@@ -2,7 +2,7 @@ import React from 'react';
 import { Modal, Box, Typography, Checkbox, FormControlLabel, FormControl, InputLabel, MenuItem, TextField, Select, Button } from '@mui/material';
 import AddressFields from './AddressFields';
 import AddressDisplay from './AddressDisplay';
-import { submitShipment } from '../services/api';
+import { submitShipment, updateShipment } from '../services/api';
 
 const OrderModal = ({ modalType = '', order = {}, onClose, onSave }) => {
     if (!modalType || !order) return null;
@@ -237,6 +237,16 @@ const OrderModal = ({ modalType = '', order = {}, onClose, onSave }) => {
                         }}
                     >
                         Submit
+                    </Button>
+                    <Button
+                        style={{ marginRight: '10px' }}
+                        variant="contained"
+                        onClick={() => { 
+                            updateShipment(order);
+                            onClose();
+                        }}
+                    >
+                        Update
                     </Button>
                     <Button
                         style={{ marginLeft: '10px' }}

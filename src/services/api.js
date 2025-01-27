@@ -36,3 +36,30 @@ export const submitShipment = (order) => {
         throw error;
     }
 };
+
+export const updateShipment = (order) => {
+    console.log(order)
+    const isOrderInfoValid = order.orderInfo.every(product =>
+        Object.values(product.productEditableFields).every(value => value !== null && value !== '')
+    );
+
+    if (!isOrderInfoValid) {
+        alert('Please fill all fields in the order information before submitting.');
+        return;
+    }
+
+    if (Object.values(order.orderEditableFields).some(value => !value)) {
+        alert('Please fill all fields before submitting.');
+        return;
+    }
+
+
+    try {
+        const response = axios.post('http://localhost:8080/shiprocket/updateOrder', order);
+        alert('Order updated successfully!');
+        return order;
+    } catch (error) {
+        console.error('Error submitting shipment:', error);
+        throw error;
+    }
+};
