@@ -1,8 +1,11 @@
 import axios from 'axios';
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 export const fetchOrders = async () => {
+    console.log("API Base URL:", process.env.REACT_APP_API_BASE_URL);
     try {
-        const response = await axios.get('http://localhost:8080/walmart/unshipped/orders');
+        const response = await axios.get(`${API_BASE_URL}/walmart/unshipped/orders`);
         return response.data || [];
     } catch (error) {
         console.error('Error fetching orders:', error);
@@ -10,15 +13,15 @@ export const fetchOrders = async () => {
     }
 };
 
-export const submitShipment = (order) => {
-    console.log(order)
+export const submitShipment = async (order) => {
+    console.log(order);
     const isOrderInfoValid = order.orderInfo.every(product =>
         Object.values(product.productEditableFields).every(value => value !== null && value !== '')
     );
 
     if (!isOrderInfoValid) {
         alert('Please fill all fields in the order information before submitting.');
-        return;
+        return null;
     }
 
     if (Object.values(order.orderEditableFields).some(value => !value)) {
@@ -26,19 +29,18 @@ export const submitShipment = (order) => {
         return;
     }
 
-
     try {
-        const response = axios.post('http://localhost:8080/shiprocket/createOrder', order);
+        const response = await axios.post(`${API_BASE_URL}/shiprocket/createOrder`, order);
         alert('Order submitted successfully!');
-        return order;
+        return response.data;
     } catch (error) {
         console.error('Error submitting shipment:', error);
         throw error;
     }
 };
 
-export const updateShipment = (order) => {
-    console.log(order)
+export const updateShipment = async (order) => {
+    console.log(order);
     const isOrderInfoValid = order.orderInfo.every(product =>
         Object.values(product.productEditableFields).every(value => value !== null && value !== '')
     );
@@ -53,13 +55,12 @@ export const updateShipment = (order) => {
         return;
     }
 
-
     try {
-        const response = axios.post('http://localhost:8080/shiprocket/updateOrder', order);
+        const response = await axios.post(`${API_BASE_URL}/shiprocket/updateOrder`, order);
         alert('Order updated successfully!');
-        return order;
+        return response.data;
     } catch (error) {
-        console.error('Error submitting shipment:', error);
+        console.error('Error updating shipment:', error);
         throw error;
     }
 };

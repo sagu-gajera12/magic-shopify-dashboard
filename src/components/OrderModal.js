@@ -4,7 +4,7 @@ import AddressFields from './AddressFields';
 import AddressDisplay from './AddressDisplay';
 import { submitShipment, updateShipment } from '../services/api';
 
-const OrderModal = ({ modalType = '', order = {}, onClose, onSave }) => {
+const OrderModal = ({ modalType = '', order = {}, onClose, onSave, onFetchShipmentStatus }) => {
     if (!modalType || !order) return null;
     const handleEditBillingAddress = (field, value) => {
         onSave({
@@ -231,9 +231,11 @@ const OrderModal = ({ modalType = '', order = {}, onClose, onSave }) => {
                     <Button
                         style={{ marginRight: '10px' }}
                         variant="contained"
-                        onClick={() => { 
-                            submitShipment(order);
+                        onClick={() => {
+                            const res = submitShipment(order);
                             onClose();
+                            if (res !== null)
+                                onFetchShipmentStatus({ ...order, shipmentStatus: 'CREATED' });
                         }}
                     >
                         Submit
@@ -241,7 +243,7 @@ const OrderModal = ({ modalType = '', order = {}, onClose, onSave }) => {
                     <Button
                         style={{ marginRight: '10px' }}
                         variant="contained"
-                        onClick={() => { 
+                        onClick={() => {
                             updateShipment(order);
                             onClose();
                         }}

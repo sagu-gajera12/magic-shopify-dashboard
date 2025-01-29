@@ -34,13 +34,11 @@ const Dashboard = () => {
                 setLoading(false);
             }
         };
-    
+
         loadOrders();
     }, []);
 
     const handleModalOpen = (order, type) => {
-        console.log("set order", orders)
-
         setSelectedOrder({
             ...order,
             orderEditableFields: {
@@ -73,6 +71,20 @@ const Dashboard = () => {
         setModalType('');
     };
 
+    const updateOrders = (updatedOrder) => {
+        setOrders((prevOrders) =>
+            prevOrders.map((order) =>
+                order.customerOrderId === updatedOrder.customerOrderId
+                    ? { ...order, ...updatedOrder }
+                    : order
+            )
+        );
+
+        setTimeout(() => {
+            console.log("setOrder", orders)
+        }, 10000);
+    }
+
 
     if (loading) return <CircularProgress />;
     return (
@@ -90,7 +102,7 @@ const Dashboard = () => {
                             onEdit={(order) => handleModalOpen(order, 'edit')}
                             onShipment={(order) => handleModalOpen(order, 'shipment')}
                             onOpneModel={handleModalOpen}
-                            setSelectedOrder={selectedOrder}
+                            onFetchShipmentStatus={updateOrders}
                         />
                     </Grid>
                 ))}
@@ -103,6 +115,7 @@ const Dashboard = () => {
                     onSave={(updatedOrder) => {
                         setSelectedOrder(updatedOrder)
                     }}
+                    onFetchShipmentStatus={updateOrders}
                 />
             )}
         </Box>

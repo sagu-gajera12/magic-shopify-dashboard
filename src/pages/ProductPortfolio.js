@@ -18,6 +18,8 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/system";
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL; 
+
 const StickyHeaderTableCell = styled(TableCell)({
   backgroundColor: "#f5f5f5",
   position: "sticky",
@@ -39,7 +41,7 @@ const ProductPortfolio = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:8080/walmart/products");
+      const response = await axios.get(`${API_BASE_URL}walmart/products`);
       setProducts(response.data);
     } catch (error) {
       console.error("Failed to fetch products:", error);
@@ -51,7 +53,7 @@ const ProductPortfolio = () => {
   const handleSync = async () => {
     setSyncing(true);
     try {
-      await axios.get("http://localhost:8080/walmart/items/sync");
+      await axios.get(`${API_BASE_URL}/walmart/items/sync`);
       await fetchProducts();
     } catch (error) {
       console.error("Sync failed:", error);
@@ -90,13 +92,14 @@ const ProductPortfolio = () => {
 
       console.log("editableProductField", editableProductField)
 
-      const response = await axios.post("http://localhost:8080/walmart/updateProduct", editableProductField);
+      const response = await axios.post(`${API_BASE_URL}/walmart/updateProduct`, editableProductField);
       const result = response.data;
       setProducts((prevProducts) =>
         prevProducts.map((product) =>
           product.sku === result.sku ? { ...result } : product
         )
       );
+    
       handleModalClose();
     } catch (error) {
       console.error("Failed to update product:", error);
@@ -180,6 +183,8 @@ const ProductPortfolio = () => {
                       </TableCell>
                       <TableCell>
                         ${product.price.toFixed(2)}
+                        | ₹
+                        {product.priceInInr}
                       </TableCell>
                       <TableCell>
                         <Button
