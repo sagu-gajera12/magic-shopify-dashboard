@@ -41,7 +41,7 @@ const ProductPortfolio = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}walmart/products`);
+      const response = await axios.get(`${API_BASE_URL}/walmart/products`);
       setProducts(response.data);
     } catch (error) {
       console.error("Failed to fetch products:", error);

@@ -14,7 +14,6 @@ export const fetchOrders = async () => {
 };
 
 export const submitShipment = async (order) => {
-    console.log(order);
     const isOrderInfoValid = order.orderInfo.every(product =>
         Object.values(product.productEditableFields).every(value => value !== null && value !== '')
     );
@@ -40,7 +39,6 @@ export const submitShipment = async (order) => {
 };
 
 export const updateShipment = async (order) => {
-    console.log(order);
     const isOrderInfoValid = order.orderInfo.every(product =>
         Object.values(product.productEditableFields).every(value => value !== null && value !== '')
     );
