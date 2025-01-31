@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   Box,
@@ -37,11 +38,23 @@ const ProductPortfolio = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/walmart/products`);
+      const token = localStorage.getItem("token");
+      
+      if (!token) {
+        window.location.href = "/login";
+      }
+      const response = await axios.get(`${API_BASE_URL}/walmart/products`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+      },
+      });
       setProducts(response.data);
     } catch (error) {
       console.error("Failed to fetch products:", error);
