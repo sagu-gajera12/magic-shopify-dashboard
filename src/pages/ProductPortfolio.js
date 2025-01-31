@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   Box,
@@ -38,7 +37,6 @@ const ProductPortfolio = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const navigate = useNavigate();
 
   const fetchProducts = async () => {
     setLoading(true);

@@ -36,7 +36,7 @@ const Dashboard = () => {
         };
 
         loadOrders();
-    }, []);
+    }, [setLoading, setOrders]);
 
     const handleModalOpen = (order, type) => {
         setSelectedOrder({
