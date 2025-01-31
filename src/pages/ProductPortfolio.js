@@ -110,7 +110,14 @@ const ProductPortfolio = () => {
 
       console.log("editableProductField", editableProductField)
 
-      const response = await axios.post(`${API_BASE_URL}/walmart/updateProduct`, editableProductField);
+      const token = localStorage.getItem("token");
+      const response = await axios.post(`${API_BASE_URL}/walmart/updateProduct`,
+      editableProductField,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+      }});
       const result = response.data;
       setProducts((prevProducts) =>
         prevProducts.map((product) =>
