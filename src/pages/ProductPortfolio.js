@@ -64,7 +64,15 @@ const ProductPortfolio = () => {
   const handleSync = async () => {
     setSyncing(true);
     try {
-      await axios.get(`${API_BASE_URL}/walmart/items/sync`);
+      const token = localStorage.getItem("token");
+      await axios.get(`${API_BASE_URL}/walmart/items/sync`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+      },
+      }
+      );
       await fetchProducts();
     } catch (error) {
       console.error("Sync failed:", error);
