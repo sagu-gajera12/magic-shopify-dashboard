@@ -232,10 +232,8 @@ const OrderModal = ({ modalType = '', order = {}, onClose, onSave, onFetchShipme
                         style={{ marginRight: '10px' }}
                         variant="contained"
                         onClick={() => {
-                            const res = submitShipment(order);
-                            onClose();
-                            if (res !== null)
-                                onFetchShipmentStatus({ ...order, shipmentStatus: 'CREATED' });
+                            submitShipment(order, onClose, onFetchShipmentStatus);
+
                         }}
                     >
                         Submit
@@ -244,8 +242,7 @@ const OrderModal = ({ modalType = '', order = {}, onClose, onSave, onFetchShipme
                         style={{ marginRight: '10px' }}
                         variant="contained"
                         onClick={() => {
-                            updateShipment(order);
-                            onClose();
+                            updateShipment(order, onClose);
                         }}
                     >
                         Update

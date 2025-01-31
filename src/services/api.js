@@ -20,7 +20,7 @@ export const fetchOrders = async () => {
     }
 };
 
-export const submitShipment = async (order) => {
+export const submitShipment = async (order, onClose, onFetchShipmentStatus) => {
     const isOrderInfoValid = order.orderInfo.every(product =>
         Object.values(product.productEditableFields).every(value => value !== null && value !== '')
     );
@@ -46,14 +46,17 @@ export const submitShipment = async (order) => {
             }
         );
         alert('Order submitted successfully!');
+        onClose();
+        onFetchShipmentStatus({ ...order, shipmentStatus: 'CREATED' });
         return response.data;
     } catch (error) {
         console.error('Error submitting shipment:', error);
-        throw error;
+        alert('Error submitting shipment:');
+        onClose();
     }
 };
 
-export const updateShipment = async (order) => {
+export const updateShipment = async (order, onClose) => {
     const isOrderInfoValid = order.orderInfo.every(product =>
         Object.values(product.productEditableFields).every(value => value !== null && value !== '')
     );
@@ -79,10 +82,12 @@ export const updateShipment = async (order) => {
             },
         );
         alert('Order updated successfully!');
+        onClose();
         return response.data;
     } catch (error) {
-        console.error('Error updating shipment:', error);
-        throw error;
+        console.error('Error updating shipment:')
+        alert('Error updating shipment:')
+        onClose();
     }
 };
 

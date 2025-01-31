@@ -71,8 +71,7 @@ const ProductPortfolio = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
       },
-      }
-      );
+      });
       await fetchProducts();
     } catch (error) {
       console.error("Sync failed:", error);
