@@ -64,7 +64,7 @@ function OTPLogin() {
         setMessage("");
         setError("");
         try {
-            const response = await axios.post(`${API_BASE_URL}/api/auth/refresh-token`);
+            await axios.post(`${API_BASE_URL}/api/auth/refresh-token`);
             setMessage("Token refreshed successfully!");
         } catch (error) {
             setError("Failed to refresh token. Please login again.");
