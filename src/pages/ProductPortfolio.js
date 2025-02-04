@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/system";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL; 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const StickyHeaderTableCell = styled(TableCell)({
   backgroundColor: "#f5f5f5",
@@ -42,17 +42,17 @@ const ProductPortfolio = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      
+
       if (!token) {
         window.location.href = "/login";
       }
       const response = await axios.get(`${API_BASE_URL}/walmart/products`,
-      {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-      },
-      });
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
       setProducts(response.data);
     } catch (error) {
       console.error("Failed to fetch products:", error);
@@ -66,12 +66,12 @@ const ProductPortfolio = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.get(`${API_BASE_URL}/walmart/items/sync`,
-      {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-      },
-      });
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
       await fetchProducts();
     } catch (error) {
       console.error("Sync failed:", error);
@@ -112,19 +112,20 @@ const ProductPortfolio = () => {
 
       const token = localStorage.getItem("token");
       const response = await axios.post(`${API_BASE_URL}/walmart/updateProduct`,
-      editableProductField,
-      {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-      }});
+        editableProductField,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          }
+        });
       const result = response.data;
       setProducts((prevProducts) =>
         prevProducts.map((product) =>
           product.sku === result.sku ? { ...result } : product
         )
       );
-    
+
       handleModalClose();
     } catch (error) {
       console.error("Failed to update product:", error);
@@ -188,6 +189,9 @@ const ProductPortfolio = () => {
                   >
                     Price
                   </StickyHeaderTableCell>
+                  <StickyHeaderTableCell sx={{ textAlign: "left", minWidth: { xs: 150, sm: 200, md: 250 } }}>
+                    Weight/Dimensions
+                  </StickyHeaderTableCell>
                   <StickyHeaderTableCell
                     sx={{ textAlign: "left", minWidth: { xs: 150, sm: 200, md: 250 } }}
                   >
@@ -210,6 +214,12 @@ const ProductPortfolio = () => {
                         ${product.price.toFixed(2)}
                         | ₹
                         {product.priceInInr}
+                      </TableCell>
+                      <TableCell>
+                        {product.deadWeight ? `${product.deadWeight}g` : "N/A"} |
+                        {product.length && product.width && product.height
+                          ? `${product.length} x ${product.width} x ${product.height} cm`
+                          : "N/A"}
                       </TableCell>
                       <TableCell>
                         <Button
@@ -268,14 +278,7 @@ const ProductPortfolio = () => {
                 onChange={(e) => handleEditableFieldChange("deadWeight", e.target.value)}
                 margin="normal"
               />
-              <TextField
-                fullWidth
-                label="Height (cm)"
-                value={selectedProduct.height || ""}
-                onChange={(e) => handleEditableFieldChange("height", e.target.value)}
-                margin="normal"
-              />
-              <TextField
+               <TextField
                 fullWidth
                 label="Length (cm)"
                 value={selectedProduct.length || ""}
@@ -287,6 +290,13 @@ const ProductPortfolio = () => {
                 label="Width (cm)"
                 value={selectedProduct.width || ""}
                 onChange={(e) => handleEditableFieldChange("width", e.target.value)}
+                margin="normal"
+              />
+              <TextField
+                fullWidth
+                label="Height (cm)"
+                value={selectedProduct.height || ""}
+                onChange={(e) => handleEditableFieldChange("height", e.target.value)}
                 margin="normal"
               />
               <Box display="flex" justifyContent="space-between" mt={2}>
