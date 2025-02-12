@@ -90,7 +90,7 @@ const Dashboard = () => {
     return (
         <Box p={3}>
             <Typography variant="h4" gutterBottom>
-                Unshipped Orders
+                Unshipped Orders : {orders.length}
             </Typography>
             <Grid container spacing={3}>
                 {orders.map((order) => (
