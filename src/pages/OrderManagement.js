@@ -98,7 +98,12 @@ const OrderManagement = () => {
           'Content-Type': 'application/json',
         },
       });
-      setOrders(response.data);
+      const formattedOrders = response.data.map(order => ({
+        ...order,
+        orderLines: JSON.parse(order.orderLines), // Convert orderLines string to object
+        shippingAddress: JSON.parse(order.shippingAddress) // Convert shippingAddress string to object
+      }));
+      setOrders(formattedOrders);
       calculateTotalProfit(response.data);
     } catch (error) {
       console.error("Failed to fetch orders:", error);
