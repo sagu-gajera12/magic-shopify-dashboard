@@ -146,7 +146,7 @@ const OrderManagement = () => {
     setLoadingSyncPrice(true);
     const ordersToSync = orders.filter(order => !order.shippingPrice);
     const payload = (ordersToSync || [])
-      .filter(order => order?.status && order.status !== "PENDING")
+      .filter(order => order?.status && order.status !== "Created")
       .map(order => ({
         customerOrderId: order.customerOrderId,
         purchaseOrderId: order.purchaseOrderId
@@ -283,7 +283,7 @@ const OrderManagement = () => {
   const getStatusConfig = (status) => {
     const configs = {
       shipped: { color: "primary", icon: <LocalShippingIcon /> },
-      pending: { color: "warning", icon: <ScheduleIcon /> },
+      created: { color: "warning", icon: <ScheduleIcon /> },
       canceled: { color: "error", icon: <InventoryIcon /> },
       delivered: { color: "success", icon: <CheckCircleIcon /> },
       default: { color: "primary", icon: <InventoryIcon /> }
@@ -392,7 +392,7 @@ const OrderManagement = () => {
           <Card sx={{ bgcolor: 'warning.main', color: 'white' }}>
             <CardContent>
               <Typography variant="h6">New Orders</Typography>
-              <Typography variant="h4">{orderStats.pending || 0}</Typography>
+              <Typography variant="h4">{orderStats.created || 0}</Typography>
             </CardContent>
           </Card>
         </Grid>
