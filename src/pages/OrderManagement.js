@@ -21,6 +21,10 @@ import {
   styled,
   Alert,
   Fade,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import {
   Edit,
@@ -36,6 +40,12 @@ import {
   Inventory as InventoryIcon,
   CheckCircle as CheckCircleIcon,
 } from "@mui/icons-material";
+import { Editor, EditorState, ContentState, convertFromHTML } from 'draft-js';
+import 'draft-js/dist/Draft.css';
+import { stateToHTML } from 'draft-js-export-html';
+
+
+import { sendEmailAPI } from "../services/api";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -82,6 +92,119 @@ const OrderManagement = () => {
   const [selectedDate, setSelectedDate] = useState(dayjs()); // Default to current date
   const [loadingSyncOrders, setLoadingSyncOrders] = useState(false);
 
+  const [openEmailModal, setOpenEmailModal] = useState(false);
+  const [emailData, setEmailData] = useState({
+    purchaseOrderId: '',
+    to: '',
+    subject: '',
+    bodyFrontend: '',
+  });
+
+
+  const handleOpenEmailModal = (order, type) => {
+    const emailBodyHtmlForShipment = `
+        <h2>Order Shipment Notification</h2>
+        <p>Dear <strong>${order.shippingAddress.name}</strong>,</p>
+        <p>Thank you for choosing Grow Enterprises!</p>
+        <p>We're excited to let you know that your order <strong>#${order.purchaseOrderId}</strong> has been shipped!</p>
+        <ul>
+          <li><strong>Product(s) Shipped:</strong> ${order.orderLines.map(line => line.productName).join(', ')}</li>
+          <li><strong>Tracking Number:</strong> ${order.orderLines[0].trackingInfo.trackingNumber}</li>
+          <li><strong>Track Your Order:</strong> <a href="${order.orderLines[0].trackingInfo.trackingURL}" target="_blank">Click here to track your order</a></li>
+        </ul>
+        <h3>Returns & Refunds</h3>
+        <p>We want to ensure a smooth shopping experience for you. In the rare case that you receive a damaged or incorrect product, we kindly ask you to take a video or photos while unpacking the box. This will help us verify the issue and process your return or refund request quickly and efficiently.</p>
+        <p>Providing these details allows us to improve our order dispatch process and enhance the overall shopping experience for our customers.</p>
+        <p>If you need any assistance, feel free to contact our support team.</p>
+        <p>Best regards,<br>The Grow Enterprises Team</p>        
+
+      `;
+
+    const emailBodyHtmlForDelivered = `
+        <h2>Thank You for Your Purchase!</h2>
+        <p>Dear <strong>${order.shippingAddress.name}</strong>,</p>
+        <p>We’re delighted to inform you that your order <strong>#${order.purchaseOrderId}</strong> has been successfully delivered!</p>
+        
+        <p>We hope you received your product as expected and that it brings value and satisfaction to you. Your feedback is incredibly important to us, and we would love to hear about your experience.</p>
+
+        <h3>Rate & Review Your Purchase</h3>
+        <p>We strive to provide the best service and high-quality products. If you’re happy with your purchase, please consider leaving us a rating and review. Your feedback helps us improve and assist future customers in making informed decisions.</p>
+        
+        <p><strong>Leave a Review:</strong> <a href="REVIEW_LINK" target="_blank">Click here to share your experience</a></p>
+
+        <h3>We Look Forward to Serving You Again</h3>
+        <p>At Grow Enterprises, customer satisfaction is our top priority. We are constantly working to bring you the best products and services. We look forward to serving you again in the future!</p>
+        
+        <h3>Need Assistance?</h3>
+        <p>If you have any questions, concerns, or need any assistance, feel free to reach out to our support team at <a href="mailto:support@growenterprises.com">support@growenterprises.com</a>. We're here to help!</p>
+
+        <p>Thank you once again for choosing Grow Enterprises. We truly appreciate your trust in us!</p>
+
+        <p>Best regards,<br>The Grow Enterprises Team</p>        
+      `;
+
+    const emailSubjectForShipment = `Your Order #${order.purchaseOrderId} Has Been Shipped!`;
+    const emailSubjectForDelivered = `Your Order #${order.purchaseOrderId} Has Been Delivered!`;
+
+    const emailBodyHtml = type === 'shipmentEmail' ? emailBodyHtmlForShipment : emailBodyHtmlForDelivered;
+    const emailSubject = type === 'shipmentEmail' ? emailSubjectForShipment : emailSubjectForDelivered;
+
+
+    const blocksFromHTML = convertFromHTML(emailBodyHtml);
+    const contentState = ContentState.createFromBlockArray(
+      blocksFromHTML.contentBlocks,
+      blocksFromHTML.entityMap
+    );
+
+    setEmailData({
+      purchaseOrderId: order.purchaseOrderId,
+      type: type,
+      to: order.customerEmailId,
+      subject: emailSubject,
+      body: emailBodyHtml,
+      bodyFrontend: EditorState.createWithContent(contentState),
+    });
+    setOpenEmailModal(true);
+  };
+
+  const handleEditorChange = (editorState) => {
+    setEmailData({ ...emailData, body: stateToHTML(editorState.getCurrentContent()), bodyFrontend: editorState });
+  };
+
+
+
+  const handleCloseEmailModal = () => setOpenEmailModal(false);
+
+  const handleSendEmail = async () => {
+    try {
+      // Await the response from sendEmailAPI
+      const updatedOrder = await sendEmailAPI(emailData);
+
+      if (updatedOrder) {
+        const formattedOrder = {
+          ...updatedOrder,
+          orderLines: JSON.parse(updatedOrder.orderLines), // Convert orderLines string to object
+          shippingAddress: JSON.parse(updatedOrder.shippingAddress) // Convert shippingAddress string to object
+        }
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order.purchaseOrderId === updatedOrder.purchaseOrderId
+              ? { ...order, ...formattedOrder }
+              : order
+          )
+        );
+      } else {
+        console.error("Failed to update order: No response received.");
+      }
+    } catch (error) {
+      console.error("Error sending email:", error);
+    }
+
+
+    setOpenEmailModal(false);
+  };
+
+
 
   const showNotification = (message, type = 'success') => {
     setNotification({ show: true, message, type });
@@ -111,7 +234,7 @@ const OrderManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, []);  
+  }, []);
 
   useEffect(() => {
     fetchOrders();
@@ -127,7 +250,7 @@ const OrderManagement = () => {
     try {
       const token = localStorage.getItem("token");
       const formattedDate = selectedDate.format("YYYY-MM-DD");
-      await axios.get(`${API_BASE_URL}/walmart/orders/sync?date=${formattedDate}`,         {
+      await axios.get(`${API_BASE_URL}/walmart/orders/sync?date=${formattedDate}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -495,6 +618,12 @@ const OrderManagement = () => {
                       </>
                     )}
                   </Box>
+                  {order.status === "SHIPPED" && order.shipmentEmail !== true && <Button variant="contained" color="primary" onClick={() => handleOpenEmailModal(order, 'shipmentEmail')}>
+                    Send Shipment Email
+                  </Button>}
+                  {order.status === "DELIVERED" && order.deliveredEmail !== true && <Button variant="contained" color="success" onClick={() => handleOpenEmailModal(order, 'deliveredEmail')}>
+                    Send Delivered Email
+                  </Button>}
                 </Grid>
                 <Grid item xs={12} sm={2}>
                   <Typography variant="h6" color="primary">
@@ -601,7 +730,39 @@ const OrderManagement = () => {
             </CardContent>
           </OrderCard>
         );
-      })}
+      })
+      }
+
+      <Dialog open={openEmailModal} onClose={handleCloseEmailModal} disableEnforceFocus>
+        <DialogTitle>Send Email</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Recipient Email"
+            value={emailData.to}
+            fullWidth
+            onChange={(e) => setEmailData({ ...emailData, to: e.target.value })}
+            margin="normal"
+          />
+          <TextField
+            label="Subject"
+            value={emailData.subject}
+            fullWidth
+            onChange={(e) => setEmailData({ ...emailData, subject: e.target.value })}
+            margin="normal"
+          />
+          <div style={{ border: '1px solid black', minHeight: '200px', padding: '10px', marginTop: '10px' }}>
+            <Editor
+              editorState={emailData.bodyFrontend}
+              onChange={handleEditorChange}
+            />
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseEmailModal} color="secondary">Close</Button>
+          <Button onClick={handleSendEmail} color="primary">Send Email</Button>
+        </DialogActions>
+      </Dialog>
+
 
       <Paper elevation={0} sx={{ mt: 2 }}>
         <TablePagination

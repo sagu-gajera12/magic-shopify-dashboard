@@ -94,21 +94,49 @@ export const updateShipment = async (order, onClose) => {
 // Function to validate token
 export const validateToken = async (token) => {
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/api/auth/validate`,
-        {}, // Empty body
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-  
-      console.log("Response:", response);
-      return response.status === 200;
+        const response = await axios.post(
+            `${API_BASE_URL}/api/auth/validate`,
+            {}, // Empty body
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+
+        console.log("Response:", response);
+        return response.status === 200;
     } catch (error) {
-      console.error("Token validation failed:", error);
-      return false;
+        console.error("Token validation failed:", error);
+        return false;
     }
-  };
+};
+
+export const sendEmailAPI = async (emailData) => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await axios.post(`${API_BASE_URL}/dashboard/send-email`, {
+            purchaseOrderId: emailData.purchaseOrderId,
+            type: emailData.type,
+            to: emailData.to,
+            subject: emailData.subject,
+            body: emailData.body,
+        }, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (response.status === 200) {
+            alert('Email sent successfully!');
+            return response.data;
+        } else {
+            alert('Failed to send email.');
+        }
+    } catch (error) {
+        console.error('Error sending email:', error);
+    }
+};
+
