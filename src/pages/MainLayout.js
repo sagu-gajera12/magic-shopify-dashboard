@@ -9,6 +9,7 @@ import ShippedOrderTracking from '../pages/ShippedOrderTracking';
 import OrderManagement from '../pages/OrderManagement';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
+import OrderGraph from './OrderGraph';
 
 function TabPanel({ children, value, index }) {
   return (
@@ -70,6 +71,10 @@ function MainLayout() {
           label="Order Management"
           sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
         />
+        <Tab
+          label="Order Graph"
+          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
+        />
       </Tabs>
     </Box>
   );
@@ -124,6 +129,9 @@ function MainLayout() {
           </TabPanel>
           <TabPanel value={selectedTab} index={3}>
             <OrderManagement />
+          </TabPanel>
+          <TabPanel value={selectedTab} index={4}>
+            <OrderGraph />
           </TabPanel>
         </Box>
       </Box>
