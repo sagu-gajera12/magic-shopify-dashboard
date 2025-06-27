@@ -10,6 +10,7 @@ import OrderManagement from '../pages/OrderManagement';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import OrderGraph from './OrderGraph';
+import WalmartAnalytics from './WalmartAnalytics';
 
 function TabPanel({ children, value, index }) {
   return (
@@ -75,6 +76,10 @@ function MainLayout() {
           label="Order Graph"
           sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
         />
+        <Tab
+          label="Walmart Analytics"
+          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
+        />
       </Tabs>
     </Box>
   );
@@ -132,6 +137,9 @@ function MainLayout() {
           </TabPanel>
           <TabPanel value={selectedTab} index={4}>
             <OrderGraph />
+          </TabPanel>
+          <TabPanel value={selectedTab} index={5}>
+            <WalmartAnalytics />
           </TabPanel>
         </Box>
       </Box>
