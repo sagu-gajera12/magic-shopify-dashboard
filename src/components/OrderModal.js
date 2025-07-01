@@ -194,6 +194,7 @@ const OrderModal = ({ modalType = '', order = {}, onClose, onSave, onFetchShipme
                                             >
                                                 <MenuItem value={"33049910"}>33049910: Cosmetic item</MenuItem>
                                                 <MenuItem value={"40141010"}>40141010: Condom item</MenuItem>
+                                                <MenuItem value={"34029099"}>34029099: Washing poweder</MenuItem>
                                             </Select>
                                         </FormControl>
                                     </>
