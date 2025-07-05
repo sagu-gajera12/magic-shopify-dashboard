@@ -18,14 +18,12 @@ const OrderGraph = () => {
 
   const fetchMonthlyData = async () => {
     try {
-        console.log("fetchMonthlyData");
       const token = localStorage.getItem("token");
       const response = await axios.get(`${API_BASE_URL}/dashboard/monthly-summary`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(response.data);
       setMonthlyData(response.data);
     } catch (error) {
       console.error("Error fetching monthly data:", error);
@@ -38,7 +36,6 @@ const OrderGraph = () => {
     try {
         const token = localStorage.getItem("token");
       const response = await axios.get(`${API_BASE_URL}/dashboard/daily-summary`, { headers: { Authorization: `Bearer ${token}` } });
-      console.log("response.data", response.data);
       setDailyData(response.data);
     } catch (error) {
       console.error("Error fetching daily data:", error);
