@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Box,Paper, TablePagination } from "@mui/material";
 import OrderCard from "./OrderCard";
 
-const OrderList = ({ orders, setOrders, handleOpenEmailModal, setEmailData }) => {
+const OrderList = ({ orders, setOrders, handleOpenEmailModal, setEmailData, parent}) => {
 
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(100);
@@ -19,7 +19,7 @@ const OrderList = ({ orders, setOrders, handleOpenEmailModal, setEmailData }) =>
     return (<>
         <Box>
             {orders.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((order) => {
-                return <OrderCard key={order.purchaseOrderId} order={order} setOrders={setOrders} handleOpenEmailModal={handleOpenEmailModal} setEmailData={setEmailData} />
+                return <OrderCard key={order.purchaseOrderId} order={order} setOrders={setOrders} handleOpenEmailModal={handleOpenEmailModal} setEmailData={setEmailData} parent={parent}/>
             })}
         </Box>
 

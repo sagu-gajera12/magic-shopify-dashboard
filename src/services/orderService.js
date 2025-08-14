@@ -23,6 +23,24 @@ export const fetchOrders = async () => {
     }
 };
 
+export const fetchOrdersForPromotion = async () => {
+    const token = localStorage.getItem("token");
+    try {
+        const response = await axios.get(`${API_BASE_URL}/walmart/getAllOrderHistoryByAsc`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        return response.data.map((order) => ({
+            ...order,
+            orderLines: JSON.parse(order.orderLines), // Convert orderLines string to object
+            shippingAddress: JSON.parse(order.shippingAddress), // Convert shippingAddress string to object
+        }));
+    } catch (error) {
+        console.error("Failed to fetch orders:", error);
+        return [];
+    }
+};
+
 /**
  * Sync shipping prices for orders where shippingPrice is missing.
  */

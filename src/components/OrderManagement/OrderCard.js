@@ -27,7 +27,7 @@ import {
     CheckCircle as CheckCircleIcon,
 } from "@mui/icons-material";
 
-const OrderCard = ({ order, setOrders, handleOpenEmailModal, setEmailData }) => {
+const OrderCard = ({ order, setOrders, handleOpenEmailModal, setEmailData, parent }) => {
     const [expandedOrder, setExpandedOrder] = useState(null);
 
     // Separate states for each field to avoid unnecessary re-renders
@@ -74,6 +74,16 @@ const OrderCard = ({ order, setOrders, handleOpenEmailModal, setEmailData }) => 
 
     const statusConfig = getStatusConfig(order.status);
     const totalPrice = order.orderLines.reduce((sum, line) => sum + line.price, 0);
+
+    const timestamp = order.lastPromotionalEmailDate;
+    const ms = Math.floor(timestamp / 1000 / 1000); // to milliseconds
+    const date = new Date(ms);
+
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+
+    const formattedDate = `${day}-${month}-${year}`;
 
     return (
         <Card sx={{ marginBottom: 2, borderRadius: 2 }}>
@@ -152,16 +162,36 @@ const OrderCard = ({ order, setOrders, handleOpenEmailModal, setEmailData }) => 
                         </Box>
 
                         {/* Email Buttons */}
-                        {order.status === "SHIPPED" && !order.shipmentEmail && (
+                        {parent === "OrderPromotion" && <Button variant="contained" color="primary" onClick={() => handleOpenEmailModal(order, "promotionalEmail")}>
+                            Send Promotion Email
+                        </Button>
+                        }
+                        {parent === "OrderPromotion" && (
+                            <div style={{
+                                fontSize: "14px",
+                                color: order.promotionalEmail ? "green" : "red",
+                                fontWeight: 500
+                            }}>
+                                {order.promotionalEmail
+                                    ? `Last sent: ${formattedDate}`
+                                    : "📭 Not sent yet"}
+                            </div>
+                        )}
+
+                        {parent === "OrderManagement" && order.status === "SHIPPED" && !order.shipmentEmail && (
                             <Button variant="contained" color="primary" onClick={() => handleOpenEmailModal(order, "shipmentEmail")}>
                                 Send Shipment Email
                             </Button>
                         )}
-                        {order.status === "DELIVERED" && !order.deliveredEmail && (
+                        {parent === "OrderManagement" && order.status === "DELIVERED" && !order.deliveredEmail && (
                             <Button variant="contained" color="success" onClick={() => handleOpenEmailModal(order, "deliveredEmail")}>
                                 Send Delivered Email
                             </Button>
                         )}
+
+
+
+
                     </Grid>
                     <Grid item xs={12} sm={2}>
                         <Typography variant="h6" color="primary">${totalPrice.toFixed(2)}</Typography>

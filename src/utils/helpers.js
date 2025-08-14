@@ -92,6 +92,62 @@ export const getEmailTemplate = (order, type) => {
         };
     }
 
+    if (type === "promotionalEmail") {
+        return {
+            subject: `Your ${order.orderLines[0]?.productName || "recent purchase"} – Discover More in Our Exclusive Catalog!`,
+
+            body: `
+                <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                    <p>Hi <strong>${order.shippingAddress?.name?.split(" ")[0] || "Customer"}</strong>,</p>
+            
+                    <p>We hope you’re doing well! We noticed you recently purchased 
+                    <strong>${order.orderLines[0]?.productName || "our product"}</strong> from us on Walmart, and we truly appreciate your trust in our products.</p>
+            
+                    <p>We’re excited to share that you can now explore our full <strong>exclusive product catalog</strong> — showcasing our bestsellers, new arrivals, and special offers — all in one place.</p>
+            
+                    <h3>Why shop directly with us?</h3>
+                    <ul>
+                        <li>💰 <strong>Better Prices</strong> – Exclusive discounts for returning customers</li>
+                        <li>🚚 <strong>Fast Shipping</strong> – Direct dispatch from our U.S. fulfillment partner</li>
+                        <li>✅ <strong>Guaranteed Authenticity</strong> – Products shipped directly from the official seller</li>
+                        <li>📞 <strong>Dedicated Support</strong> – Priority service for our direct customers</li>
+                    </ul>
+            
+                    <p style="font-size: 16px; font-weight: bold; color: #d32f2f;">
+                        📌 This is our <u>catalog only</u> — to place an order, simply reply to this email, send us a WhatsApp message, or call us directly.
+                    </p>
+            
+                    <p>As a thank-you, here’s a special offer for your next direct order:</p>
+                    <p style="font-size: 18px; font-weight: bold; background: #f5f5f5; padding: 10px; display: inline-block; border-radius: 5px;">
+                        Use code <span style="color: #d32f2f;">PROMO30</span> for <strong>30% OFF</strong> your first direct purchase
+                    </p>
+            
+                    <p style="margin-top: 20px;">
+                        <a href="https://cosmatic-product-catalog.netlify.app" target="_blank" 
+                           style="background: #d32f2f; color: #fff; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-size: 16px;">
+                           📖 View Our Product Catalog
+                        </a>
+                    </p>
+            
+                    <p>💬 Or chat with us instantly on WhatsApp:</p>
+                    <p>
+                        <a href="https://wa.me/918530191782?text=${encodeURIComponent(`Hi, I am interested in ${order.orderLines[0]?.productName || 'a product'} from your catalog and would like to know more.`)}" 
+                           style="background: #25D366; color: #fff; padding: 10px 15px; text-decoration: none; border-radius: 5px;">
+                           💬 Message Us on WhatsApp
+                        </a>
+                    </p>
+            
+                    <p>Thank you again for choosing us — we look forward to bringing you more amazing products directly.</p>
+            
+                    <p>Warm regards,<br>
+                    <a href="https://skinnthrive.com">Skinnthrive.com</a> | 
+                    <a href="mailto:info@skinnthrive.com">info@skinnthrive.com</a> | 
+                    +91 8530191782</p>
+                </div>
+            `
+        };
+    }
+
     return { subject: "", body: "" };
 };
 
