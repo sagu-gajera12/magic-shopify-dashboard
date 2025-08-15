@@ -220,7 +220,7 @@ const OrderManagement = () => {
       </Box>
 
       <OrderStats orders={orders} />
-      <OrderList orders={orders} setOrders={setOrders} handleOpenEmailModal={handleOpenEmailModal} setEmailData={setEmailData} parent="OrderManagemen"/>
+      <OrderList orders={orders} setOrders={setOrders} handleOpenEmailModal={handleOpenEmailModal} setEmailData={setEmailData} parent="OrderManagement"/>
 
       <EmailModal open={openEmailModal} handleClose={() => setOpenEmailModal(false)} emailData={emailData} setEmailData={setEmailData} setOrders={setOrders} />
     </Box>
