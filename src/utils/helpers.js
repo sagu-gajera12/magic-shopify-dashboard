@@ -140,8 +140,8 @@ export const getEmailTemplate = (order, type) => {
                     <p>Thank you again for choosing us — we look forward to bringing you more amazing products directly.</p>
             
                     <p>Warm regards,<br>
-                    <a href="https://skinnthrive.com">Skinnthrive.com</a> | 
-                    <a href="mailto:info@skinnthrive.com">info@skinnthrive.com</a> | 
+                    <a href="https://skinnthrive.com">Skinnthrive.com</a> <br> 
+                    <a href="mailto:info@skinnthrive.com">info@skinnthrive.com</a> <br> 
                     +91 8530191782</p>
                 </div>
             `
