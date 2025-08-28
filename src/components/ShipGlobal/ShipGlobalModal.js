@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -24,7 +24,7 @@ const ShipGlobalModal = ({ open, onClose, order }) => {
     const [activeStep, setActiveStep] = useState(0);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    
+
     // Form Data
     const [pickupAddresses, setPickupAddresses] = useState([]);
     const [selectedPickupAddress, setSelectedPickupAddress] = useState('');
@@ -66,21 +66,14 @@ const ShipGlobalModal = ({ open, onClose, order }) => {
         ioss_number: '',
         vendor_order_item: []
     });
-    
+
     const [shipperRates, setShipperRates] = useState([]);
     const [selectedShipper, setSelectedShipper] = useState('');
     const [createdOrderId, setCreatedOrderId] = useState('');
 
-    useEffect(() => {
-        if (open) {
-            prefillFormData();
-            fetchPickupAddresses();
-        }
-    }, [open, order]);
-
-    const prefillFormData = () => {
+    const prefillFormData = useCallback(() => {
         const { shippingInfo, orderInfo } = order;
-        
+
         const nameParts = shippingInfo.postalAddress.name.split(' ');
         const firstName = nameParts[0] || '';
         const lastName = nameParts.slice(1).join(' ') || '';
@@ -118,13 +111,14 @@ const ShipGlobalModal = ({ open, onClose, order }) => {
                 vendor_order_item_tax_rate: 0
             }))
         }));
-    };
+    }, [order]); // dependencies it uses internally
 
-    const fetchPickupAddresses = async () => {
+    const fetchPickupAddresses = useCallback(async () => {
         setLoading(true);
         try {
             const addresses = await shipGlobalService.getPickupAddresses();
             setPickupAddresses(addresses);
+
             const defaultAddress = addresses.find(addr => addr.default === '1');
             if (defaultAddress) {
                 setSelectedPickupAddress(defaultAddress.address_id);
@@ -134,7 +128,16 @@ const ShipGlobalModal = ({ open, onClose, order }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+
+    useEffect(() => {
+        if (open) {
+            prefillFormData();
+            fetchPickupAddresses();
+        }
+    }, [open, order, prefillFormData, fetchPickupAddresses]);
+
 
     const validateOrderInvoice = async () => {
         setLoading(true);
@@ -231,7 +234,7 @@ const ShipGlobalModal = ({ open, onClose, order }) => {
                         onItemChange={handleItemChange}
                     />
                 );
-            
+
             case 1:
                 return (
                     <Box textAlign="center" py={4}>
@@ -241,7 +244,7 @@ const ShipGlobalModal = ({ open, onClose, order }) => {
                         {loading && <CircularProgress />}
                     </Box>
                 );
-            
+
             case 2:
                 return (
                     <ShipperSelection
@@ -251,7 +254,7 @@ const ShipGlobalModal = ({ open, onClose, order }) => {
                         loading={loading}
                     />
                 );
-            
+
             case 3:
                 return (
                     <OrderSuccess
@@ -260,7 +263,7 @@ const ShipGlobalModal = ({ open, onClose, order }) => {
                         loading={loading}
                     />
                 );
-            
+
             default:
                 return null;
         }
@@ -288,14 +291,14 @@ const ShipGlobalModal = ({ open, onClose, order }) => {
                     </Stepper>
                 </Box>
             </DialogTitle>
-            
+
             <DialogContent>
                 {error && (
                     <Alert severity="error" style={{ marginBottom: 16 }}>
                         {error}
                     </Alert>
                 )}
-                
+
                 {renderStepContent()}
             </DialogContent>
 
@@ -303,7 +306,7 @@ const ShipGlobalModal = ({ open, onClose, order }) => {
                 <Button onClick={handleClose}>
                     Cancel
                 </Button>
-                
+
                 {activeStep === 0 && (
                     <Button
                         variant="contained"
@@ -313,20 +316,20 @@ const ShipGlobalModal = ({ open, onClose, order }) => {
                         Validate Order & Get Rates
                     </Button>
                 )}
-                
+
                 {activeStep === 1 && loading && (
                     <Button disabled>
                         <CircularProgress size={20} style={{ marginRight: 8 }} />
                         Processing...
                     </Button>
                 )}
-                
+
                 {activeStep === 2 && !loading && (
                     <Typography variant="body2" color="textSecondary">
                         Click on a shipping service to proceed
                     </Typography>
                 )}
-                
+
                 {activeStep === 2 && loading && (
                     <Button disabled>
                         <CircularProgress size={20} style={{ marginRight: 8 }} />
