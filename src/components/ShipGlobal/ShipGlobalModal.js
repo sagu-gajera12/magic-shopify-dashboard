@@ -27,6 +27,7 @@ const ShipGlobalModal = ({ open, onClose, order }) => {
     
     // Form Data
     const [pickupAddresses, setPickupAddresses] = useState([]);
+    const [states, setStates] = useState([]);
     const [selectedPickupAddress, setSelectedPickupAddress] = useState('');
     const [orderFormData, setOrderFormData] = useState({
         customer_shipping_firstname: '',
@@ -75,6 +76,7 @@ const ShipGlobalModal = ({ open, onClose, order }) => {
         if (open) {
             prefillFormData();
             fetchPickupAddresses();
+            fetchStates();
         }
     }, [open, order]);
 
@@ -103,8 +105,10 @@ const ShipGlobalModal = ({ open, onClose, order }) => {
             customer_billing_address_2: shippingInfo.postalAddress.address2 || '',
             customer_billing_postcode: shippingInfo.postalAddress.postalCode || '',
             customer_billing_city: shippingInfo.postalAddress.city || '',
+            customer_billing_state_id: '', // Will be set after states are loaded
             vendor_reference_order_id: order.purchaseOrderId || '',
             order_reference: order.customerOrderId || '',
+            vendor_invoice_no: `INV-${order.customerOrderId || Date.now()}`, // Generate invoice number
             vendor_order_item: orderInfo.map((item, index) => ({
                 vendor_order_item_id: `id-${Date.now()}-${index}`,
                 vendor_order_item_name: item.productName || '',
@@ -130,6 +134,26 @@ const ShipGlobalModal = ({ open, onClose, order }) => {
             setError('Failed to fetch pickup addresses');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchStates = async () => {
+        try {
+            const statesList = await shipGlobalService.getStates('US');
+            setStates(statesList);
+            
+            // Auto-select state if we can find a match
+            if (statesList.length > 0 && orderFormData.customer_shipping_city) {
+                // Try to find matching state by common patterns or default to first state
+                const defaultState = statesList[0]; // You might want to implement better matching logic
+                setOrderFormData(prev => ({
+                    ...prev,
+                    customer_shipping_state_id: defaultState.state_id,
+                    customer_billing_state_id: defaultState.state_id
+                }));
+            }
+        } catch (error) {
+            setError('Failed to fetch states');
         }
     };
 
@@ -222,6 +246,7 @@ const ShipGlobalModal = ({ open, onClose, order }) => {
                     <OrderForm
                         orderFormData={orderFormData}
                         pickupAddresses={pickupAddresses}
+                        states={states}
                         selectedPickupAddress={selectedPickupAddress}
                         onPickupAddressChange={setSelectedPickupAddress}
                         onInputChange={handleInputChange}

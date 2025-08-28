@@ -4,7 +4,8 @@ const SHIPGLOBAL_BASE_URL = 'http://localhost:8080/api/shipglobal';
 
 const getAuthHeaders = () => ({
     'Authorization': `Bearer ${localStorage.getItem('token')}`,
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    // 'X-API-Key': localStorage.getItem('token')
 });
 
 export const shipGlobalService = {
@@ -13,6 +14,16 @@ export const shipGlobalService = {
             headers: getAuthHeaders()
         });
         return response.data.data || [];
+    },
+
+    async getStates(countryCode = 'US') {
+        const response = await axios.post(`${SHIPGLOBAL_BASE_URL}/location/states`, {
+            state_country_code: countryCode,
+            destination_country: true
+        }, {
+            headers: getAuthHeaders()
+        });
+        return response.data.data.states || [];
     },
 
     async validateOrderInvoice(orderFormData) {
