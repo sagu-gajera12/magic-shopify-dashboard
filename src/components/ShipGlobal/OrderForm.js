@@ -7,16 +7,11 @@ import {
     FormControlLabel,
     Radio,
     Card,
-    MenuItem,
-    Select,
-    FormControl,
-    InputLabel
 } from '@mui/material';
 
 const OrderForm = ({
     orderFormData,
     pickupAddresses,
-    states,
     selectedPickupAddress,
     onPickupAddressChange,
     onInputChange,
@@ -111,20 +106,12 @@ const OrderForm = ({
                 />
             </Grid>
             <Grid item xs={6}>
-                <FormControl fullWidth>
-                    <InputLabel>State</InputLabel>
-                    <Select
-                        value={orderFormData.customer_shipping_state_id}
-                        label="State"
-                        onChange={(e) => onInputChange('customer_shipping_state_id', e.target.value)}
-                    >
-                        {states.map((state) => (
-                            <MenuItem key={state.state_id} value={state.state_id}>
-                                {state.state_name}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
+                <TextField
+                    fullWidth
+                    label="State"
+                    value={orderFormData.customer_shipping_state_id}
+                    onChange={(e) => onInputChange('customer_shipping_state_id', e.target.value)}
+                />
             </Grid>
             
             {/* Order Information Section */}
@@ -157,22 +144,16 @@ const OrderForm = ({
             <Grid item xs={12}>
                 <Typography variant="h6" gutterBottom>Billing Address (Same as Shipping)</Typography>
             </Grid>
+
             <Grid item xs={6}>
-                <FormControl fullWidth>
-                    <InputLabel>Billing State</InputLabel>
-                    <Select
-                        value={orderFormData.customer_billing_state_id}
-                        label="Billing State"
-                        onChange={(e) => onInputChange('customer_billing_state_id', e.target.value)}
-                    >
-                        {states.map((state) => (
-                            <MenuItem key={state.state_id} value={state.state_id}>
-                                {state.state_name}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
+                <TextField
+                    fullWidth
+                    label="Billing State"
+                    value={orderFormData.customer_billing_state_id}
+                    onChange={(e) => onInputChange('customer_billing_state_id', e.target.value)}
+                />
             </Grid>
+
             
             {/* Package Details Section */}
             <Grid item xs={12}>

@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
 import { 
-    Button, 
     Card, 
-    CardContent, 
-    Typography, 
-    Box
 } from '@mui/material';
-import EditableFields from './EditableFields';
 import { shipmentService } from '../services/shipmentService';
 import ShipGlobalModal from './ShipGlobal/ShipGlobalModal';
 import OrderActions from './Order/OrderActions';
