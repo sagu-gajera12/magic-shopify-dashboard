@@ -109,10 +109,36 @@ const OrderForm = ({
                 <TextField
                     fullWidth
                     label="State"
+                    value={orderFormData.customer_shipping_state}
+                    onChange={(e) => onInputChange('customer_shipping_state', e.target.value)}
+                />
+            </Grid>
+
+            <Grid item xs={6}>
+                <TextField
+                    fullWidth
+                    label="State id"
                     value={orderFormData.customer_shipping_state_id}
                     onChange={(e) => onInputChange('customer_shipping_state_id', e.target.value)}
                 />
             </Grid>
+
+            {/* <Grid item xs={6}>
+                <FormControl fullWidth>
+                    <InputLabel>State</InputLabel>
+                    <Select
+                        value={orderFormData.customer_shipping_state_id}
+                        label="State"
+                        onChange={(e) => onInputChange('customer_shipping_state_id', e.target.value)}
+                    >
+                        {states.map((state) => (
+                            <MenuItem key={state.state_id} value={state.state_id}>
+                                {state.state_name}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+            </Grid> */}
             
             {/* Order Information Section */}
             <Grid item xs={12}>
@@ -149,6 +175,15 @@ const OrderForm = ({
                 <TextField
                     fullWidth
                     label="Billing State"
+                    value={orderFormData.customer_billing_state}
+                    onChange={(e) => onInputChange('customer_billing_state', e.target.value)}
+                />
+            </Grid>
+
+            <Grid item xs={6}>
+                <TextField
+                    fullWidth
+                    label="Billing State id"
                     value={orderFormData.customer_billing_state_id}
                     onChange={(e) => onInputChange('customer_billing_state_id', e.target.value)}
                 />

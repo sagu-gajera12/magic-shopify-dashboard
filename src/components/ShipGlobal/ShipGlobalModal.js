@@ -26,6 +26,7 @@ const ShipGlobalModal = ({ open, onClose, order }) => {
     const [error, setError] = useState('');
 
     // Form Data
+    const [states, setStates] = useState([]);
     const [pickupAddresses, setPickupAddresses] = useState([]);
     const [selectedPickupAddress, setSelectedPickupAddress] = useState('');
     const [orderFormData, setOrderFormData] = useState({
@@ -89,6 +90,7 @@ const ShipGlobalModal = ({ open, onClose, order }) => {
             customer_shipping_address_2: shippingInfo.postalAddress.address2 || '',
             customer_shipping_postcode: shippingInfo.postalAddress.postalCode || '',
             customer_shipping_city: shippingInfo.postalAddress.city || '',
+            customer_shipping_state: shippingInfo.postalAddress.state || '', // Will be set after states are loaded
             customer_shipping_state_id: shippingInfo.postalAddress.state || '', // Will be set after states are loaded
             customer_billing_firstname: firstName,
             customer_billing_lastname: lastName,
@@ -97,6 +99,7 @@ const ShipGlobalModal = ({ open, onClose, order }) => {
             customer_billing_address_2: shippingInfo.postalAddress.address2 || '',
             customer_billing_postcode: shippingInfo.postalAddress.postalCode || '',
             customer_billing_city: shippingInfo.postalAddress.city || '',
+            customer_billing_state: shippingInfo.postalAddress.state || '', // Will be set after states are loaded
             customer_billing_state_id: shippingInfo.postalAddress.state || '', // Will be set after states are loaded
             vendor_reference_order_id: order.purchaseOrderId || '',
             order_reference: order.customerOrderId || '',
@@ -112,6 +115,48 @@ const ShipGlobalModal = ({ open, onClose, order }) => {
             }))
         }));
     }, [order]); // dependencies it uses internally
+
+
+    const cachedStates = React.useRef(null);
+
+    const fetchStates = useCallback(async () => {
+        try {
+            if (cachedStates.current) {
+                // reuse cache
+                setStates(cachedStates.current);
+            } else {
+                // fetch first time
+                const statesList = await shipGlobalService.getStates('US');
+                cachedStates.current = statesList; // save into ref
+                setStates(statesList);
+            }
+    
+            if (cachedStates.current?.length > 0 && orderFormData.customer_shipping_state) {
+                const matchedStateId = getStateIdFromName(
+                    orderFormData.customer_shipping_state,
+                    cachedStates.current
+                );
+    
+                setOrderFormData(prev => ({
+                    ...prev,
+                    customer_shipping_state_id: matchedStateId || cachedStates.current[0].state_id,
+                    customer_billing_state_id: matchedStateId || cachedStates.current[0].state_id
+                }));
+            }
+        } catch (error) {
+            setError('Failed to fetch states');
+        }
+    }, [orderFormData.customer_shipping_state]);
+    
+
+    const getStateIdFromName = (stateName, states) => {
+        if (!stateName) return null;
+        const match = states.find(
+            state => state.state_name.toLowerCase().includes(stateName.toLowerCase())
+        );
+        return match ? match.state_id : null;
+    };
+
 
     const fetchPickupAddresses = useCallback(async () => {
         setLoading(true);
@@ -135,8 +180,9 @@ const ShipGlobalModal = ({ open, onClose, order }) => {
         if (open) {
             prefillFormData();
             fetchPickupAddresses();
+            fetchStates();
         }
-    }, [open, order, prefillFormData, fetchPickupAddresses]);
+    }, [open, order, prefillFormData, fetchPickupAddresses, fetchStates]);
 
 
     const validateOrderInvoice = async () => {
@@ -228,6 +274,7 @@ const ShipGlobalModal = ({ open, onClose, order }) => {
                     <OrderForm
                         orderFormData={orderFormData}
                         pickupAddresses={pickupAddresses}
+                        states={states}
                         selectedPickupAddress={selectedPickupAddress}
                         onPickupAddressChange={setSelectedPickupAddress}
                         onInputChange={handleInputChange}
