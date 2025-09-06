@@ -123,7 +123,7 @@ export const getEmailTemplate = (order, type) => {
                     </p>
             
                     <p style="margin-top: 20px;">
-                        <a href="https://arshderma.in" target="_blank" 
+                        <a href="https://catalog.skinnthrive.com" target="_blank" 
                            style="background: #d32f2f; color: #fff; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-size: 16px;">
                            📖 View Our Product Catalog
                         </a>
