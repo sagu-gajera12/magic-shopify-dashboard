@@ -76,12 +76,10 @@ const OrderCard = ({ order, setOrders, handleOpenEmailModal, setEmailData, paren
     const totalPrice = order.orderLines.reduce((sum, line) => sum + line.price, 0);
 
     const timestamp = order.lastPromotionalEmailDate;
-    const ms = Math.floor(timestamp / 1000 / 1000); // to milliseconds
-    const date = new Date(ms);
 
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
+    const day = timestamp[2];
+    const month = timestamp[1];
+    const year = timestamp[0];
 
     const formattedDate = `${day}-${month}-${year}`;
 
