@@ -12,6 +12,7 @@ import { useTheme } from '@mui/material/styles';
 import OrderGraph from './OrderGraph';
 import WalmartAnalytics from './WalmartAnalytics';
 import OrderPromotion from './OrderPromotion';
+import ShopifyProductImporter from './ShopifyProductImporter';
 
 function TabPanel({ children, value, index }) {
   return (
@@ -85,6 +86,10 @@ function MainLayout() {
           label="Walmart Analytics"
           sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
         />
+                <Tab
+          label="Shopify Importer"
+          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
+        />
       </Tabs>
     </Box>
   );
@@ -148,6 +153,9 @@ function MainLayout() {
           </TabPanel>
           <TabPanel value={selectedTab} index={6}>
             <WalmartAnalytics />
+          </TabPanel>
+          <TabPanel value={selectedTab} index={7}>
+            <ShopifyProductImporter />
           </TabPanel>
         </Box>
       </Box>
