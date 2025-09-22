@@ -20,6 +20,24 @@ export const fetchOrders = async () => {
     }
 };
 
+export const fetchOrdersSince = async () => {
+    console.log("API Base URL:", process.env.REACT_APP_API_BASE_URL, "fetchOrdersSince");
+    const token = localStorage.getItem('token');
+    try {
+        const response = await axios.get(`${API_BASE_URL}/walmart/unshipped/orders/since/12`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        return response.data || [];
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        if (error.response.status === 403) window.location.href = '/login';
+        throw error;
+    }
+};
+
 export const submitShipment = async (order, onClose, onFetchShipmentStatus) => {
     const isOrderInfoValid = order.orderInfo.every(product =>
         Object.values(product.productEditableFields).every(value => value !== null && value !== '')
