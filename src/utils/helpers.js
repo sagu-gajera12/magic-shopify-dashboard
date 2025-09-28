@@ -170,7 +170,7 @@ export const getEmailTemplate = (order, type) => {
     
                     <p>You can track your shipment here:</p>
                     <p>
-                        <a href="https://shipglobal.in/tracking?trackingId={{TRACKING_ID}}" target="_blank"
+                        <a href="https://shipglobal.in/tracking?awb={{TRACKING_ID}}" target="_blank"
                            style="background: #1976d2; color: #fff; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-size: 16px;">
                            🚚 Track Your Order
                         </a>
