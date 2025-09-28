@@ -32,17 +32,17 @@ export const showNotification = (setNotification, message, type = "success") => 
 
 
 export const getEmailTemplate = (order, type) => {
-    if (!order || !order.purchaseOrderId || !order.shippingAddress || !order.orderLines) {
+    console.log("Generating email template for order:", order, "with type:", type, "order", order);
+    if (!order || ((type === "shipmentEmail" || type === "deliveredEmail" || type === "promotionalEmail") && (!order.purchaseOrderId || !order.shippingAddress || !order.orderLines))) {
         console.error("Invalid order data provided for email template.");
         return { subject: "", body: "" };
     }
 
-    const customerName = order.shippingAddress.name;
-    const purchaseOrderId = order.purchaseOrderId;
-    const productsShipped = order.orderLines.map(line => line.productName).join(", ");
-    const trackingInfo = order.orderLines[0]?.trackingInfo;
-
     if (type === "shipmentEmail") {
+        const customerName = order.shippingAddress.name;
+        const purchaseOrderId = order.purchaseOrderId;
+        const productsShipped = order.orderLines.map(line => line.productName).join(", ");
+        const trackingInfo = order.orderLines[0]?.trackingInfo;
         return {
             subject: `Your Order #${purchaseOrderId} Has Been Shipped!`,
             body: `
@@ -65,6 +65,7 @@ export const getEmailTemplate = (order, type) => {
     }
 
     if (type === "deliveredEmail") {
+        const purchaseOrderId = order.purchaseOrderId;
         return {
             subject: `Your Order #${purchaseOrderId} Has Been Delivered!`,
             body: `
@@ -147,6 +148,53 @@ export const getEmailTemplate = (order, type) => {
             `
         };
     }
+
+    if (type === "orderTrackingEmail") {
+        return {
+            subject: `Update on Your ${order.orderInfo[0]?.productName || "Order"} – New Tracking Details Available`,
+    
+            body: `
+                <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                    <p>Hi <strong>${order.shippingInfo?.postalAddrees?.name?.split(" ")[0] || "Customer"}</strong>,</p>
+    
+                    <p>We wanted to update you regarding your recent order 
+                    <strong>${order.orderInfo[0]?.productName || "from our store"}</strong>.</p>
+    
+                    <p>Your order was initially shipped, but due to <strong>Shiprocket temporarily halting cosmetic product shipments</strong>, it was returned to us. We sincerely apologize for the inconvenience caused.</p>
+    
+                    <p>Good news! We have now <strong>re-shipped your order through ShipGlobal</strong> with a new tracking ID:</p>
+    
+                    <p style="font-size: 18px; font-weight: bold; background: #f5f5f5; padding: 10px; display: inline-block; border-radius: 5px;">
+                        Tracking ID: <span style="color: #d32f2f;">{{TRACKING_ID}}</span>
+                    </p>
+    
+                    <p>You can track your shipment here:</p>
+                    <p>
+                        <a href="https://shipglobal.in/tracking?trackingId={{TRACKING_ID}}" target="_blank"
+                           style="background: #1976d2; color: #fff; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-size: 16px;">
+                           🚚 Track Your Order
+                        </a>
+                    </p>
+    
+                    <p>Please note that delivery may take a little longer than usual. We truly appreciate your patience and understanding during this time.</p>
+    
+                    <p>If you have any questions or need assistance, feel free to reach us at:</p>
+                    <ul>
+                        <li>📧 <a href="mailto:info@skinnthrive.com">info@skinnthrive.com</a></li>
+                        <li>📞 +91 8530191782</li>
+                        <li>💬 <a href="https://wa.me/918530191782?text=${encodeURIComponent("Hi, I would like to get an update about my order {{TRACKING_ID}}")}" target="_blank">Message Us on WhatsApp</a></li>
+                    </ul>
+    
+                    <p>Thank you once again for choosing us. We’re committed to ensuring your order reaches you as soon as possible.</p>
+    
+                    <p>Warm regards,<br>
+                    <a href="https://skinnthrive.com">Skinnthrive.com</a></p>
+                </div>
+            `
+        };
+    }
+    
+
 
     return { subject: "", body: "" };
 };

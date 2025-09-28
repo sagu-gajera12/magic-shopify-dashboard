@@ -8,7 +8,7 @@ import OrderActions from './Order/OrderActions';
 import OrderHeader from './Order/OrderHeader';
 import OrderDetails from './Order/OrderDetails';
 
-const OrderCard = ({ order, onView, onEdit, onShipment, onFetchShipmentStatus }) => {
+const OrderCard = ({ order, onView, onEdit, onShipment, onFetchShipmentStatus, handleOpenEmailModal, setEmailData}) => {
     const [shipGlobalOpen, setShipGlobalOpen] = useState(false);
 
     const handleUpdateStatus = async (orderId) => {
@@ -61,6 +61,7 @@ const OrderCard = ({ order, onView, onEdit, onShipment, onFetchShipmentStatus })
         setShipGlobalOpen(true);
     };
 
+
     return (
         <>
             <Card
@@ -85,6 +86,8 @@ const OrderCard = ({ order, onView, onEdit, onShipment, onFetchShipmentStatus })
                     onEdit={onEdit}
                     onShipment={onShipment}
                     onShipGlobal={handleShipGlobal}
+                    handleOpenEmailModal={handleOpenEmailModal} 
+                    setEmailData={setEmailData}
                 />
             </Card>
 

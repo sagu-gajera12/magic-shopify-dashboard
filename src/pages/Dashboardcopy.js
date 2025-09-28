@@ -1,12 +1,48 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Typography, Grid, CircularProgress } from '@mui/material';
 import OrderCard from '../components/OrderCard';
 import OrderModal from '../components/OrderModal';
-import {fetchOrdersSince } from '../services/api';
+import { fetchOrdersSince } from '../services/api';
 import useOrders from '../hooks/useOrders';
+import { EditorState, ContentState, convertFromHTML } from 'draft-js';
+import 'draft-js/dist/Draft.css';
+import { getEmailTemplate } from '../utils/helpers';
+import EmailModal from '../components/OrderManagement/EmailModal';
 
 const DashboardCopy = () => {
     const { orders, setOrders, loading, setLoading, selectedOrder, setSelectedOrder, modalType, setModalType } = useOrders();
+
+    const [openEmailModal, setOpenEmailModal] = useState(false);
+    const [emailData, setEmailData] = useState({});
+
+    const handleOpenEmailModal = (order, type) => {
+        if (!order || !order.customerEmailId) {
+            console.error("Invalid order data for email modal.");
+            return;
+        }
+
+        const { subject, body } = getEmailTemplate(order, type);
+
+        if (!subject || !body) {
+            console.error("Invalid email template type.");
+            return;
+        }
+
+        const blocksFromHTML = convertFromHTML(body);
+        const contentState = ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap);
+
+        setEmailData({
+            purchaseOrderId: order.purchaseOrderId,
+            type,
+            to: order.customerEmailId,
+            subject,
+            body,
+            bodyFrontend: EditorState.createWithContent(contentState),
+        });
+
+        setOpenEmailModal(true);
+    };
+
     const editableData = {
         deadWeight: '',
         length: '',
@@ -103,6 +139,7 @@ const DashboardCopy = () => {
                             onShipment={(order) => handleModalOpen(order, 'shipment')}
                             onOpneModel={handleModalOpen}
                             onFetchShipmentStatus={updateOrders}
+                            handleOpenEmailModal={handleOpenEmailModal} setEmailData={setEmailData}
                         />
                     </Grid>
                 ))}
@@ -118,6 +155,7 @@ const DashboardCopy = () => {
                     onFetchShipmentStatus={updateOrders}
                 />
             )}
+            <EmailModal open={openEmailModal} handleClose={() => setOpenEmailModal(false)} emailData={emailData} setEmailData={setEmailData} setOrders={setOrders} />
         </Box>
     );
 };
