@@ -155,7 +155,7 @@ export const getEmailTemplate = (order, type) => {
     
             body: `
                 <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-                    <p>Hi <strong>${order.shippingInfo?.postalAddrees?.name?.split(" ")[0] || "Customer"}</strong>,</p>
+                    <p>Hi <strong>${order.shippingInfo?.postalAddress?.name?.split(" ")[0] || "Customer"}</strong>,</p>
     
                     <p>We wanted to update you regarding your recent order 
                     <strong>${order.orderInfo[0]?.productName || "from our store"}</strong>.</p>
