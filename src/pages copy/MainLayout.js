@@ -13,8 +13,6 @@ import OrderGraph from './OrderGraph';
 import WalmartAnalytics from './WalmartAnalytics';
 import OrderPromotion from './OrderPromotion';
 import ShopifyProductImporter from './ShopifyProductImporter';
-import DashboardCopy from './Dashboardcopy';
-import ShopifyOrders from './ShopifyOrders';
 
 function TabPanel({ children, value, index }) {
   return (
@@ -92,14 +90,6 @@ function MainLayout() {
           label="Shopify Importer"
           sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
         />
-          <Tab
-          label="All order since 12th"
-          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
-        />
-        <Tab
-          label="Shopify Orders"
-          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
-        />
       </Tabs>
     </Box>
   );
@@ -166,12 +156,6 @@ function MainLayout() {
           </TabPanel>
           <TabPanel value={selectedTab} index={7}>
             <ShopifyProductImporter />
-          </TabPanel>
-          <TabPanel value={selectedTab} index={8}>
-          <DashboardCopy />
-          </TabPanel>
-          <TabPanel value={selectedTab} index={9}>
-            <ShopifyOrders />
           </TabPanel>
         </Box>
       </Box>
