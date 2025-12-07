@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     Box,
     Button,
@@ -87,35 +87,26 @@ const ShopifyOrders = () => {
     );
     const [columnAnchorEl, setColumnAnchorEl] = useState(null);
 
-    // Fetch orders on component mount and when pagination changes
-    useEffect(() => {
-        fetchOrders();
-    }, [page, rowsPerPage]);
+const fetchOrders = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+        const response = await getAllShopifyOrders(page + 1, rowsPerPage);
+        setOrders(response.orders || []);
+        setTotalCount(response.totalCount || 0);
+        setSelectedOrders([]); // Clear selection on new data
+    } catch (err) {
+        setError('Failed to fetch orders. Please try again.');
+        enqueueSnackbar('Failed to fetch orders', { variant: 'error' });
+    } finally {
+        setLoading(false);
+    }
+}, [page, rowsPerPage, enqueueSnackbar]); // add dependencies used inside the function
 
-    // Update select all when orders change
-    useEffect(() => {
-        if (orders.length > 0 && selectedOrders.length === orders.length) {
-            setSelectAll(true);
-        } else {
-            setSelectAll(false);
-        }
-    }, [selectedOrders, orders]);
+useEffect(() => {
+    fetchOrders();
+}, [fetchOrders]); 
 
-    const fetchOrders = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await getAllShopifyOrders(page + 1, rowsPerPage);
-            setOrders(response.orders || []);
-            setTotalCount(response.totalCount || 0);
-            setSelectedOrders([]); // Clear selection on new data
-        } catch (err) {
-            setError('Failed to fetch orders. Please try again.');
-            enqueueSnackbar('Failed to fetch orders', { variant: 'error' });
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleSyncOrders = async () => {
         setSyncing(true);
