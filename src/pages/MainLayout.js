@@ -15,6 +15,8 @@ import OrderPromotion from './OrderPromotion';
 import ShopifyProductImporter from './ShopifyProductImporter';
 import DashboardCopy from './Dashboardcopy';
 import ShopifyOrders from './ShopifyOrders';
+import GeographyPerformanceDashboard from './GeographyPerformanceDashboard';
+import CourierPerformanceDashboard from './CourierPerformanceDashboard';
 
 function TabPanel({ children, value, index }) {
   return (
@@ -100,6 +102,14 @@ function MainLayout() {
           label="Shopify Orders"
           sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
         />
+        <Tab
+          label="Courier Performance Dashboard"
+          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
+        />
+        <Tab
+          label="Geography Performance Dashboard"
+          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
+        />
       </Tabs>
     </Box>
   );
@@ -172,6 +182,12 @@ function MainLayout() {
           </TabPanel>
           <TabPanel value={selectedTab} index={9}>
             <ShopifyOrders />
+          </TabPanel>
+          <TabPanel value={selectedTab} index={10}>
+            <CourierPerformanceDashboard/>
+          </TabPanel>
+          <TabPanel value={selectedTab} index={11}>
+            <GeographyPerformanceDashboard/>
           </TabPanel>
         </Box>
       </Box>
