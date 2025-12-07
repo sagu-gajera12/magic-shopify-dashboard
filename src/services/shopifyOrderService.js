@@ -121,10 +121,14 @@ export const updateShopifyOrder = async (orderId, orderData) => {
     }
 };
 
-export default {
-    syncShopifyOrders,
+const shopifyOrderService = {
+ syncShopifyOrders,
     syncShopifyOrdersByIds,
     getAllShopifyOrders,
     getShopifyOrderById,
     updateShopifyOrder,
 };
+
+
+
+export default shopifyOrderService;

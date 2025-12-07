@@ -3,17 +3,9 @@ import {
   AppBar, Toolbar, Typography, Tabs, Tab, Box, IconButton, Drawer
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import Dashboard from '../pages/Dashboard';
-import ProductPortfolio from '../pages/ProductPortfolio';
-import ShippedOrderTracking from '../pages/ShippedOrderTracking';
-import OrderManagement from '../pages/OrderManagement';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
-import OrderGraph from './OrderGraph';
-import WalmartAnalytics from './WalmartAnalytics';
-import OrderPromotion from './OrderPromotion';
 import ShopifyProductImporter from './ShopifyProductImporter';
-import DashboardCopy from './Dashboardcopy';
 import ShopifyOrders from './ShopifyOrders';
 import GeographyPerformanceDashboard from './GeographyPerformanceDashboard';
 import CourierPerformanceDashboard from './CourierPerformanceDashboard';

@@ -1,22 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
-  BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
+  BarChart, Bar, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 import { getCourierPerformance } from '../services/analyticsService';
-
-// Analytics Service - API calls
-const API_BASE_URL = 'http://localhost:8080';
-
-// const analyticsService = {
-//   getCourierPerformance: async (startDate, endDate, userId) => {
-//     const response = await fetch(
-//       `${API_BASE_URL}/shopify/orders/analytics/courier/performance?startDate=${startDate}&endDate=${endDate}`
-//     );
-//     if (!response.ok) throw new Error('Failed to fetch courier performance');
-//     return response.json();
-//   }
-// };
 
 const CourierPerformanceDashboard = () => {
   const [data, setData] = useState(null);
@@ -29,17 +16,11 @@ const CourierPerformanceDashboard = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [tempDateRange, setTempDateRange] = useState(dateRange);
 
-  useEffect(() => {
-    fetchData();
-  }, [dateRange]);
-
+useEffect(() => {
   const fetchData = async () => {
     setLoading(true);
     setError(null);
     try {
-      // Get userId from localStorage or replace with your auth method
-      const userId = localStorage.getItem('userId') || 'default-user';
-      
       const response = await getCourierPerformance(
         dateRange.startDate,
         dateRange.endDate
@@ -52,6 +33,10 @@ const CourierPerformanceDashboard = () => {
       setLoading(false);
     }
   };
+
+  fetchData();
+}, [dateRange]);
+
 
   const handleDateChange = (field, value) => {
     setTempDateRange(prev => ({ ...prev, [field]: value }));
@@ -74,7 +59,6 @@ const CourierPerformanceDashboard = () => {
     return `${start.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} - ${end.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`;
   };
 
-  const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
   if (loading) {
     return (

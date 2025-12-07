@@ -1,37 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect, useCallback } from 'react';
 import {
   BarChart, Bar, ScatterChart, Scatter, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 import { getPincodePerformance, getProblemAreas } from '../services/analyticsService';
 
-// Analytics Service - API calls
-const API_BASE_URL = 'http://localhost:8080';
-
-// const analyticsService = {
-//   getPincodePerformance: async (startDate, endDate, userId, limit = 50) => {
-//     const response = await fetch(
-//       `${API_BASE_URL}/shopify/orders/analytics/geography/pincode?startDate=${startDate}&endDate=${endDate}&userId=${userId}&limit=${limit}`
-//     );
-//     if (!response.ok) throw new Error('Failed to fetch pincode performance');
-//     return response.json();
-//   },
-  
-//   getProblemAreas: async (startDate, endDate, userId, minOrders = 10) => {
-//     const response = await fetch(
-//       `${API_BASE_URL}/shopify/orders/analytics/geography/problem-areas?startDate=${startDate}&endDate=${endDate}&userId=${userId}&minOrders=${minOrders}`
-//     );
-//     if (!response.ok) throw new Error('Failed to fetch problem areas');
-//     return response.json();
-//   }
-// };
 
 const GeographyPerformanceDashboard = () => {
   const [pincodeData, setPincodeData] = useState(null);
   const [problemAreas, setProblemAreas] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [viewMode, setViewMode] = useState('pincode'); // 'pincode', 'city', 'state'
+  const [viewMode] = useState('pincode'); // 'pincode', 'city', 'state'
   const [dateRange, setDateRange] = useState({
     startDate: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0],
     endDate: new Date().toISOString().split('T')[0]
@@ -39,30 +19,30 @@ const GeographyPerformanceDashboard = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [tempDateRange, setTempDateRange] = useState(dateRange);
 
-  useEffect(() => {
-    fetchData();
-  }, [dateRange, viewMode]);
+const fetchData = useCallback(async () => {
+  setLoading(true);
+  setError(null);
 
-  const fetchData = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      // Get userId from localStorage or replace with your auth method
-      const userId = localStorage.getItem('userId') || 'default-user';
-      
-      const [pincodeResponse, problemResponse] = await Promise.all([
-        getPincodePerformance(dateRange.startDate, dateRange.endDate, 50),
-        getProblemAreas(dateRange.startDate, dateRange.endDate, 10)
-      ]);
-      setPincodeData(pincodeResponse);
-      setProblemAreas(problemResponse);
-    } catch (err) {
-      setError('Failed to load geography performance data');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    const [pincodeResponse, problemResponse] = await Promise.all([
+      getPincodePerformance(dateRange.startDate, dateRange.endDate, 50),
+      getProblemAreas(dateRange.startDate, dateRange.endDate, 10)
+    ]);
+
+    setPincodeData(pincodeResponse);
+    setProblemAreas(problemResponse);
+  } catch (err) {
+    setError("Failed to load geography performance data");
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+}, [dateRange]); // fetchData changes only when dateRange changes
+
+useEffect(() => {
+  fetchData();
+}, [fetchData, viewMode]); // Now ESLint is happy
+
 
   const handleDateChange = (field, value) => {
     setTempDateRange(prev => ({ ...prev, [field]: value }));
