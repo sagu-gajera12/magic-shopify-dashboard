@@ -62,40 +62,9 @@ function MainLayout() {
         TabIndicatorProps={{ style: { backgroundColor: '#1976d2' } }}
         sx={{ height: '100%', alignItems: "flex-start" }} // Aligns tabs to the left
       >
-        <Tab
-          label="Unshipped Order"
-          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
-        />
-        <Tab
-          label="Product Portfolio"
-          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
-        />
-        <Tab
-          label="Shipped Order Tracking"
-          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
-        />
-        <Tab
-          label="Order Management"
-          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
-        />
-        <Tab
-          label="Order Promotion"
-          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
-        />
-        <Tab
-          label="Order Graph"
-          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
-        />
-        <Tab
-          label="Walmart Analytics"
-          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
-        />
+       
                 <Tab
           label="Shopify Importer"
-          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
-        />
-          <Tab
-          label="All order since 12th"
           sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
         />
         <Tab
@@ -154,39 +123,15 @@ function MainLayout() {
         {/* Right Content Area */}
         <Box sx={{ flex: 1, bgcolor: '#fff', width: isMobile ? '100%' : '80%' }}>
           <TabPanel value={selectedTab} index={0}>
-            <Dashboard />
-          </TabPanel>
-          <TabPanel value={selectedTab} index={1}>
-            <ProductPortfolio />
-          </TabPanel>
-          <TabPanel value={selectedTab} index={2}>
-            <ShippedOrderTracking />
-          </TabPanel>
-          <TabPanel value={selectedTab} index={3}>
-            <OrderManagement />
-          </TabPanel>
-          <TabPanel value={selectedTab} index={4}>
-            <OrderPromotion />
-          </TabPanel>
-          <TabPanel value={selectedTab} index={5}>
-            <OrderGraph />
-          </TabPanel>
-          <TabPanel value={selectedTab} index={6}>
-            <WalmartAnalytics />
-          </TabPanel>
-          <TabPanel value={selectedTab} index={7}>
             <ShopifyProductImporter />
           </TabPanel>
-          <TabPanel value={selectedTab} index={8}>
-          <DashboardCopy />
-          </TabPanel>
-          <TabPanel value={selectedTab} index={9}>
+          <TabPanel value={selectedTab} index={1}>
             <ShopifyOrders />
           </TabPanel>
-          <TabPanel value={selectedTab} index={10}>
+          <TabPanel value={selectedTab} index={2}>
             <CourierPerformanceDashboard/>
           </TabPanel>
-          <TabPanel value={selectedTab} index={11}>
+          <TabPanel value={selectedTab} index={3}>
             <GeographyPerformanceDashboard/>
           </TabPanel>
         </Box>
