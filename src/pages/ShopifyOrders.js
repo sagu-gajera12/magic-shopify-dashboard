@@ -64,7 +64,8 @@ const ALL_COLUMNS = [
 ];
 
 const ShopifyOrders = () => {
-    const [selectedDate, setSelectedDate] = useState(dayjs());
+    const [selectedStartDate, setSelectedStartDate] = useState(dayjs().subtract(30, 'day')); // Default to 30 days ago
+    const [selectedEndDate, setSelectedEndDate] = useState(dayjs()); // Default to today
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(false);
     const [syncing, setSyncing] = useState(false);
@@ -120,8 +121,17 @@ const ShopifyOrders = () => {
         setSyncing(true);
         setError(null);
         try {
-            const dateString = selectedDate.format('YYYY-MM-DD');
-            const response = await syncShopifyOrders(dateString);
+            const startDateString = selectedStartDate.format('YYYY-MM-DD');
+            const endDateString = selectedEndDate.format('YYYY-MM-DD');
+            
+            // Validate date range
+            if (selectedStartDate.isAfter(selectedEndDate)) {
+                enqueueSnackbar('Start date cannot be after end date', { variant: 'error' });
+                setSyncing(false);
+                return;
+            }
+            
+            const response = await syncShopifyOrders(startDateString, endDateString);
             enqueueSnackbar(
                 `Successfully synced ${response.syncedCount || 0} orders from Shopify`,
                 { variant: 'success' }
@@ -457,21 +467,31 @@ const ShopifyOrders = () => {
                 <Paper sx={{ p: 3, mb: 3 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                         <DatePicker
-                            label="Select Date"
-                            value={selectedDate}
-                            onChange={(newValue) => setSelectedDate(newValue)}
+                            label="Start Date"
+                            value={selectedStartDate}
+                            onChange={(newValue) => setSelectedStartDate(newValue)}
                             renderInput={(params) => <TextField {...params} />}
-                            sx={{ minWidth: 250 }}
+                            sx={{ minWidth: 200 }}
+                            maxDate={selectedEndDate}
+                        />
+                        <DatePicker
+                            label="End Date"
+                            value={selectedEndDate}
+                            onChange={(newValue) => setSelectedEndDate(newValue)}
+                            renderInput={(params) => <TextField {...params} />}
+                            sx={{ minWidth: 200 }}
+                            minDate={selectedStartDate}
+                            maxDate={dayjs()}
                         />
                         <Button
                             variant="contained"
                             color="primary"
                             startIcon={syncing ? <CircularProgress size={20} color="inherit" /> : <SyncIcon />}
                             onClick={handleSyncOrders}
-                            disabled={syncing || !selectedDate}
+                            disabled={syncing || !selectedStartDate || !selectedEndDate}
                             sx={{ height: 56 }}
                         >
-                            {syncing ? 'Syncing...' : 'Sync by Date'}
+                            {syncing ? 'Syncing...' : 'Sync Date Range'}
                         </Button>
                         <Button
                             variant="contained"
@@ -496,6 +516,22 @@ const ShopifyOrders = () => {
                         </Tooltip>
                         <Typography variant="body2" color="text.secondary">
                             Total Orders: {totalCount}
+                        </Typography>
+                    </Box>
+                    
+                    {/* Date Range Display */}
+                    <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography variant="body2" color="text.secondary">
+                            Selected Range: 
+                        </Typography>
+                        <Chip 
+                            label={`${selectedStartDate.format('DD MMM YYYY')} - ${selectedEndDate.format('DD MMM YYYY')}`}
+                            size="small"
+                            color="primary"
+                            variant="outlined"
+                        />
+                        <Typography variant="body2" color="text.secondary">
+                            ({selectedEndDate.diff(selectedStartDate, 'day')} days)
                         </Typography>
                     </Box>
                 </Paper>

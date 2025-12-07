@@ -42,9 +42,9 @@ apiClient.interceptors.response.use(
  * @param {string} date - Date in YYYY-MM-DD format
  * @returns {Promise} Response with syncedCount
  */
-export const syncShopifyOrders = async (date) => {
+export const syncShopifyOrders = async (startDate, endDate) => {
     try {
-        const response = await apiClient.post('/shopify/orders/sync', { date });
+        const response = await apiClient.post('/shopify/orders/sync', { "startDate":startDate, "endDate":endDate });
         return response.data;
     } catch (error) {
         console.error('Error syncing Shopify orders:', error);
