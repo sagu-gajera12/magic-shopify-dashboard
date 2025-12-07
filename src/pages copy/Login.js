@@ -53,7 +53,7 @@ function OTPLogin() {
                 headers: { "Content-Type": "application/json" },
             });
             localStorage.setItem("token", response.data.token);
-            navigate("/shopify");
+            navigate("/dashboard");
         } catch (error) {
             setError("Invalid OTP. Please try again.");
         }

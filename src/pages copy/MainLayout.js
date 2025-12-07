@@ -13,10 +13,6 @@ import OrderGraph from './OrderGraph';
 import WalmartAnalytics from './WalmartAnalytics';
 import OrderPromotion from './OrderPromotion';
 import ShopifyProductImporter from './ShopifyProductImporter';
-import DashboardCopy from './Dashboardcopy';
-import ShopifyOrders from './ShopifyOrders';
-import GeographyPerformanceDashboard from './GeographyPerformanceDashboard';
-import CourierPerformanceDashboard from './CourierPerformanceDashboard';
 
 function TabPanel({ children, value, index }) {
   return (
@@ -62,21 +58,36 @@ function MainLayout() {
         TabIndicatorProps={{ style: { backgroundColor: '#1976d2' } }}
         sx={{ height: '100%', alignItems: "flex-start" }} // Aligns tabs to the left
       >
-       
+        <Tab
+          label="Unshipped Order"
+          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
+        />
+        <Tab
+          label="Product Portfolio"
+          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
+        />
+        <Tab
+          label="Shipped Order Tracking"
+          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
+        />
+        <Tab
+          label="Order Management"
+          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
+        />
+        <Tab
+          label="Order Promotion"
+          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
+        />
+        <Tab
+          label="Order Graph"
+          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
+        />
+        <Tab
+          label="Walmart Analytics"
+          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
+        />
                 <Tab
           label="Shopify Importer"
-          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
-        />
-        <Tab
-          label="Shopify Orders"
-          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
-        />
-        <Tab
-          label="Courier Performance Dashboard"
-          sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
-        />
-        <Tab
-          label="Geography Performance Dashboard"
           sx={{ textAlign: "left", justifyContent: "flex-start", display: "flex" }}
         />
       </Tabs>
@@ -123,16 +134,28 @@ function MainLayout() {
         {/* Right Content Area */}
         <Box sx={{ flex: 1, bgcolor: '#fff', width: isMobile ? '100%' : '80%' }}>
           <TabPanel value={selectedTab} index={0}>
-            <ShopifyProductImporter />
+            <Dashboard />
           </TabPanel>
           <TabPanel value={selectedTab} index={1}>
-            <ShopifyOrders />
+            <ProductPortfolio />
           </TabPanel>
           <TabPanel value={selectedTab} index={2}>
-            <CourierPerformanceDashboard/>
+            <ShippedOrderTracking />
           </TabPanel>
           <TabPanel value={selectedTab} index={3}>
-            <GeographyPerformanceDashboard/>
+            <OrderManagement />
+          </TabPanel>
+          <TabPanel value={selectedTab} index={4}>
+            <OrderPromotion />
+          </TabPanel>
+          <TabPanel value={selectedTab} index={5}>
+            <OrderGraph />
+          </TabPanel>
+          <TabPanel value={selectedTab} index={6}>
+            <WalmartAnalytics />
+          </TabPanel>
+          <TabPanel value={selectedTab} index={7}>
+            <ShopifyProductImporter />
           </TabPanel>
         </Box>
       </Box>

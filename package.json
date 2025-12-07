@@ -20,7 +20,7 @@
     "react-dom": "^19.0.0",
     "react-icons": "^5.4.0",
     "react-router-dom": "^7.1.3",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "recharts": "^2.15.1"
   },
   "scripts": {
@@ -28,7 +28,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "prod": "REACT_APP_API_BASE_URL=https://magic-walmart-shiprocket-backend.onrender.com npm start",
+    "prod": "REACT_APP_API_BASE_URL=https://magic-shopify-production.up.railway.app npm start",
     "dev": "REACT_APP_API_BASE_URL=http://localhost:8080 npm start"
   },
   "eslintConfig": {
